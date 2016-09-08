@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>VI Classroom Course Demo</title>
+</head>
+<body>
+<h1>课程模拟程序</h1>
+<h3>状态: <span class="message"/></h3>
+<div>
+    <select class="question-options">
+        <option selected value="A">A</option>
+        <option value="B">B</option>
+        <option value="C">C</option>
+        <option value="D">D</option>
+    </select>
+    <input type="button" class="send-answer" value="提交问题答案">
+</div>
+<div>
+    <input type="button" class="send-done" value="交卷"/>
+</div>
+
+</body>
+
+<script>
+    // You can also require other files to run in this process
+    require('./renderer.js')
+</script>
+</html>

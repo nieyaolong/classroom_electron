@@ -1,0 +1,11 @@
+{
+  "name": "classroom-electron",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "start": "electron ./client/client.js"
+  },
+  "dependencies": {
+    "electron": "^1.3.5"
+  }
+}
