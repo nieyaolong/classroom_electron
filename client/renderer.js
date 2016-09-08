@@ -11,15 +11,23 @@ var classState = {
     PENDING:0, PROCESSING:1, DONE:2
 };
 
-function getMessage(state) {
+function updateMassage(state) {
+    let message;
     switch (state) {
         case classState.PENDING:
-            return "尚未收到课程推送,请认真听讲";
+            message = "尚未收到课程推送,请认真听讲";
+            break;
         case classState.PROCESSING:
-            return "请戴上头盔开始课程";
+            message = "请戴上头盔开始课程";
+            break;
         case classState.DONE:
-            return "课程结束,请认真听讲";
+            message = "课程结束,请认真听讲";
+            break;
+        default:
+            message = "ERROR";
     }
+    let p = document.querySelector(".message");
+    p.innerHTML = message;
 }
 
 function start(){
@@ -29,10 +37,24 @@ function start(){
     let id = document.querySelector(".user-id");
     id.innerHTML = setting.id;
 
-    let message = document.querySelector(".message");
+    let pushButton = document.querySelector(".start-course");
+    pushButton.onclick = pushCourse ;
 
-    let state = classState.PENDING;
-    message.innerHTML = getMessage(state);
+    updateMassage(classState.PENDING);
+}
+
+function pushCourse() {
+    let courseInput = document.querySelector(".course-name");
+    let courseName = courseInput.value;
+    if(courseName == null || courseName.length  == 0) {
+        return;
+    }
+
+    updateMassage(classState.PROCESSING);
+    let pushButton = document.querySelector(".start-course");
+    pushButton.disabled = true;
+
+    console.error(`pushing course: ${courseName}`);
 }
 
 

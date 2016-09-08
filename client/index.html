@@ -1,18 +1,27 @@
 <!DOCTYPE html>
 <html>
-  <head>
+<head>
     <meta charset="UTF-8">
     <title>VI Classroom Client</title>
-  </head>
-  <body>
-    <h1>欢迎使用威爱教室</h1>
-    <h3>学号: <span class="user-id"/></h3>
-    <h3>姓名: <span class="user-name"/></h3>
-    <p class="message"/>
-  </body>
+</head>
+<body>
+<h1>欢迎使用威爱教室</h1>
+<h3>学号: <span class="user-id"/></h3>
+<h3>姓名: <span class="user-name"/></h3>
+<h3>消息: <span class="message"/></h3>
 
-  <script>
+<div>
+    <div>
+        <p>输入课程名称:</p>
+        <input type="text" class="course-name">
+        <input type="button" class="start-course" value="开始课程"/>
+    </div>
+
+</div>
+</body>
+
+<script>
     // You can also require other files to run in this process
     require('./renderer.js')
-  </script>
+</script>
 </html>

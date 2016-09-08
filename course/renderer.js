@@ -29,10 +29,10 @@ function updateMessage(state) {
 
 function start(){
     let sendDoneButton = document.querySelector(".send-done");
-    sendDoneButton.addEventListener('click', sendDone);
+    sendDoneButton.onclick = sendDone;
     sendDoneButton.disabled = true;
     let sendAnswerButton = document.querySelector(".send-answer");
-    sendAnswerButton.addEventListener('click', sendAnswer);
+    sendAnswerButton.onclick = sendAnswer;
     updateMessage(courseState.PROCESSING)
 }
 
