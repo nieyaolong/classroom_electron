@@ -8,14 +8,17 @@ var setting = {
 };
 
 var courseState = {
-    PROCESSING:1, DONE:2
+    PENDING:0, PROCESSING:1, DONE:2
 };
 
-function updateMessage(state) {
+function updateMessage(state, data) {
     let message;
     switch (state) {
+        case courseState.PENDING:
+            message = "等待接收课程信息";
+            break;
         case courseState.PROCESSING:
-            message = "正在进行";
+            message = `正在进行 课程名称:${data}`;
             break;
         case courseState.DONE:
             message =  "课程结束";
@@ -34,7 +37,7 @@ function start(){
     let sendAnswerButton = document.querySelector(".send-answer");
     sendAnswerButton.onclick = sendAnswer;
 
-    updateMessage(courseState.PROCESSING);
+    updateMessage(courseState.PENDING);
 }
 
 function sendAnswer() {
@@ -44,7 +47,7 @@ function sendAnswer() {
     let sendDoneButton = document.querySelector(".send-done");
     sendDoneButton.disabled = false;
 
-    socketClient.write(`answer:${answer}`);
+    sendMessgge({answer:answer});
     console.error(`send answer: ${answer}`);
 }
 
@@ -57,17 +60,30 @@ function sendDone() {
 
     updateMessage(courseState.DONE);
 
-    socketClient.write(`done`);
+    sendMessgge({event:'done'});
     socketClient.end();
     console.error(`send done.`);
 }
 
+function sendMessgge(data) {
+    let json = JSON.stringify(data);
+    socketClient.write(json);
+}
+
+function handleServerMessage(message) {
+    if(message.course) {
+        //开始特定课程
+        updateMessage(courseState.PROCESSING, message.course);
+    }
+}
+
 const socketClient = require('net').connect({port:9100}, () => {
     console.error('connected to server');
-    socketClient.write('connected...');
+    socketClient.write('course connected');
 
     socketClient.on('data', (data) => {
         console.error(`server data: ${data}`);
+        handleServerMessage(JSON.parse(data));
     });
 
 });

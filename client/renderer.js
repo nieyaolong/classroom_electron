@@ -11,17 +11,17 @@ var classState = {
     PENDING: 0, PROCESSING: 1, DONE: 2
 };
 
-function updateMassage(state) {
+function updateMessage(state, data) {
     let message;
     switch (state) {
         case classState.PENDING:
             message = "尚未收到课程推送,请认真听讲";
             break;
         case classState.PROCESSING:
-            message = "请戴上头盔开始课程";
+            message = `请戴上头盔开始课程 ${data}`;
             break;
         case classState.DONE:
-            message = "课程结束,请认真听讲";
+            message = `课程结束, 答题结果: ${data}`;
             break;
         default:
             message = state;
@@ -40,8 +40,10 @@ function start() {
     let pushButton = document.querySelector(".start-course");
     pushButton.onclick = pushCourse;
 
-    updateMassage(classState.PENDING);
+    updateMessage(classState.PENDING);
 }
+
+var currentCourse = null;
 
 function pushCourse() {
     let courseInput = document.querySelector(".course-name");
@@ -50,10 +52,11 @@ function pushCourse() {
         return;
     }
 
-    updateMassage(classState.PROCESSING);
+    updateMessage(classState.PROCESSING, courseName);
     let pushButton = document.querySelector(".start-course");
     pushButton.disabled = true;
 
+    currentCourse = courseName;
     executeCourse(courseName);
     console.error(`pushing course: ${courseName}`);
 }
@@ -65,9 +68,26 @@ function executeCourse(courseName) {
 
     child.on('exit', (m) => {
         console.error(`course ended: ${m}`);
-        updateMassage(classState.DONE);
+        let pushButton = document.querySelector(".start-course");
+        pushButton.disabled = false;
     })
 }
+
+var answers = [];
+
+function handleServerMessage(message) {
+    if(message.event) {
+        //事件
+        if(message.event === 'done') {
+            updateMessage(classState.DONE, answers);
+            answers = [];
+        }
+    } else if(message.answer) {
+        //答题
+        answers.push(message.answer);
+    }
+}
+
 
 var socketServer = require('net').createServer((c) => {
     console.error('client connected');
@@ -78,9 +98,10 @@ var socketServer = require('net').createServer((c) => {
 
     c.on('data', (m) => {
         console.error(`client data: ${m}`);
+        handleServerMessage(JSON.parse(m));
     });
 
-    c.write('connected');
+    c.write(JSON.stringify({course:currentCourse}));
 });
 socketServer.listen(9100, () => {
     console.error('server bound');
