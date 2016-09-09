@@ -33,7 +33,8 @@ function start(){
     sendDoneButton.disabled = true;
     let sendAnswerButton = document.querySelector(".send-answer");
     sendAnswerButton.onclick = sendAnswer;
-    updateMessage(courseState.PROCESSING)
+
+    updateMessage(courseState.PROCESSING);
 }
 
 function sendAnswer() {
@@ -43,7 +44,8 @@ function sendAnswer() {
     let sendDoneButton = document.querySelector(".send-done");
     sendDoneButton.disabled = false;
 
-    console.error(`sending answer: ${answer}`);
+    socketClient.write(`answer:${answer}`);
+    console.error(`send answer: ${answer}`);
 }
 
 
@@ -55,7 +57,18 @@ function sendDone() {
 
     updateMessage(courseState.DONE);
 
-    console.error(`sending done.`);
+    socketClient.write(`done`);
+    socketClient.end();
+    console.error(`send done.`);
 }
 
+const socketClient = require('net').connect({port:9100}, () => {
+    console.error('connected to server');
+    socketClient.write('connected...');
+
+    socketClient.on('data', (data) => {
+        console.error(`server data: ${data}`);
+    });
+
+});
 start();
