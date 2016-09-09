@@ -1,0 +1,12 @@
+{
+  "name": "classroom-course",
+  "version": "0.1.0",
+  "main": "course.js",
+  "private": true,
+  "scripts": {
+    "start": "electron ."
+  },
+  "dependencies": {
+    "electron": "^1.3.5"
+  }
+}

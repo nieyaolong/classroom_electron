@@ -3,7 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "start": "electron ./client/client.js"
+    "start": "electron ./client/client.js",
+    "package-client": "./client/ classroomClient --platform=mas --out ./package --version 1.3.5 --overwrite --icon client/classroom.icns",
+    "package-course": "./course/ classroomCourse --platform=mas --out ./package --version 1.3.5 --overwrite --icon course/course.icns"
   },
   "dependencies": {
     "electron": "^1.3.5"

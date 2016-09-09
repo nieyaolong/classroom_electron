@@ -65,6 +65,7 @@ function executeCourse(courseName) {
     const cp = require('child_process');
     const path = require('path');
     const child = cp.spawn('electron', [path.join(__dirname, '../course/course.js'), courseName]);
+    // const child = cp.spawn('/Users/nieyaolong/Code/VI/classroom_electron/package/classroomCourse.app/Contents/MacOS/classroomCourse');
 
     child.on('exit', (m) => {
         console.error(`course ended: ${m}`);
