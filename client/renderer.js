@@ -2,10 +2,6 @@
 // be executed in the renderer process for that window.
 // All of the Node.js APIs are available in this process.
 
-var setting = {
-    user: 'Law',
-    id: '1234567'
-};
 
 var classState = {
     PENDING: 0, PROCESSING: 1, DONE: 2
@@ -29,6 +25,27 @@ function updateMessage(state, data) {
     let p = document.querySelector(".message");
     p.innerHTML = message;
 }
+
+var params = {};
+function get_get(){
+    let query_str = window.location.href.split("?");
+    if(query_str[1]){
+        let param_str = query_str[1].split("&");
+        for(let i=0;i< param_str.length;i++){
+            let tmp_arr = param_str[i].split("=");
+            let key=tmp_arr[0];
+            params[key] = tmp_arr[1]
+        }
+    }
+}
+
+get_get();
+var setting = {
+    user: params['user-name'],
+    id: params['edu-id'],
+    server: params['server-addr']
+};
+
 
 function start() {
     let name = document.querySelector(".user-name");
