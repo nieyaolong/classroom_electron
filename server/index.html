@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>VI Classroom Client</title>
+</head>
+<body>
+<h1>欢迎使用威爱教室教师端</h1>
+<h3>班级: <span class="class-name"/></h3>
+<h3>老师: <span class="teacher-name"/></h3>
+<h3>消息: <span class="message"/></h3>
+
+<div>
+    <div>
+        <p>学生连接状态:</p><br/>
+        <table border="1">
+            <tr><th>编号</th><th>状态</th><th>学生姓名</th><th>答案</th></tr>
+            <tr><td>1</td><td><p class="std-state-1"/></td><td><p class="std-name-1"></p></td><td><p class="std-answer-1"></p></td></tr>
+            <tr><td>2</td><td><p class="std-state-2"/></td><td><p class="std-name-2"></p></td><td><p class="std-answer-2"></p></td></tr>
+        </table>
+    </div>
+
+</div>
+
+
+<div>
+    <div>
+        <p>请输入课程名称:</p>
+        <input type="text" class="course-name">
+        <input type="button" class="start-course" value="开始课程"/>
+    </div>
+
+</div>
+</body>
+
+<script>
+    // You can also require other files to run in this process
+    require('./renderer.js')
+</script>
+</html>

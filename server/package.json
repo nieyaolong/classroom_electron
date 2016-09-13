@@ -1,0 +1,12 @@
+{
+  "name": "classroom-server",
+  "version": "0.1.0",
+  "main": "server.js",
+  "private": true,
+  "scripts": {
+    "start": "electron ."
+  },
+  "dependencies": {
+    "electron": "^1.3.5"
+  }
+}
