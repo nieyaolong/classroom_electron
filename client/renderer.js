@@ -4,14 +4,17 @@
 
 
 var classState = {
-    PENDING: 0, PROCESSING: 1, DONE: 2
+    PENDING: 0, CONNECTED:1, PROCESSING: 2, DONE: 3
 };
 
 function updateMessage(state, data) {
     let message;
     switch (state) {
         case classState.PENDING:
-            message = "尚未收到课程推送,请认真听讲";
+            message = "无法连接服务器,请等待老师开始课程";
+            break;
+        case classState.CONNECTED:
+            message = "已连接服务器,请等待老师开始课程";
             break;
         case classState.PROCESSING:
             message = `请戴上头盔开始课程 ${data}`;
@@ -42,24 +45,14 @@ function start() {
     let id = document.querySelector(".user-id");
     id.innerHTML = setting.id;
 
-    let pushButton = document.querySelector(".start-course");
-    pushButton.onclick = pushCourse;
-
     updateMessage(classState.PENDING);
 }
 
 var currentCourse = null;
 
-function pushCourse() {
-    let courseInput = document.querySelector(".course-name");
-    let courseName = courseInput.value;
-    if (courseName == null || courseName.length == 0) {
-        return;
-    }
+function pushCourse(courseName) {
 
     updateMessage(classState.PROCESSING, courseName);
-    let pushButton = document.querySelector(".start-course");
-    pushButton.disabled = true;
 
     currentCourse = courseName;
     executeCourse(courseName);
@@ -114,3 +107,20 @@ socketServer.listen(9100, () => {
 });
 
 start();
+
+const ioSocket = require('socket.io-client')(setting.server);
+
+ioSocket.on('connect', ()=> {
+    console.log(`connected :${setting.server}`);
+    ioSocket.emit('login', {index:1, user:setting.user, edu:setting.id})
+    updateMessage(classState.CONNECTED);
+});
+
+ioSocket.on('disconnect', () => {
+    console.log('disconnect with server');
+});
+
+ioSocket.on('start course', (data) => {
+    let course = data.course;
+    pushCourse(course);
+});

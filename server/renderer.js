@@ -2,21 +2,33 @@
 // be executed in the renderer process for that window.
 // All of the Node.js APIs are available in this process.
 
-var socketServer = require('net').createServer((c) => {
-    console.error('client connected');
+const server = require("http").createServer();
+const io = require("socket.io")(server);
 
-    c.on('end', () => {
-        console.error('client disconnected');
-    });
+const port = 9101;
 
-    c.on('data', (m) => {
-        console.error(`client data: ${m}`);
-        handleServerMessage(JSON.parse(m));
-    });
-
-    c.write(JSON.stringify({course:currentCourse}));
-});
-socketServer.listen(9100, () => {
-    console.error('server bound');
+server.listen(port, () => {
+    console.log(`Server listening at port ${port}`);
 });
 
+io.on('connection', (socket) => {
+
+    socket.on('login', (data) => {
+        socket.index = data.index;
+        socket.name = data.name;
+        socket.edu = data.edu;
+        console.log(`student login: ${data}`);
+    });
+
+    socket.on('disconnect', () => {
+        console.log(`student ${socket.index} logout.`);
+    });
+
+});
+
+const startCourseButton = document.querySelector(".start-course");
+const courseNameInput = document.querySelector(".course-name");
+
+startCourseButton.onclick = () => {
+    io.sockets.emit('start course', {course:courseNameInput.value});
+};
