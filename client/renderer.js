@@ -28,10 +28,7 @@ ioSocket.on('disconnect', () => {
     console.log('disconnect with server');
 });
 
-ioSocket.on('start course', (data) => {
-    let course = data.course;
-    pushCourse(course);
-});
+ioSocket.on('start course', pushCourse);
 
 function updateMessage(state, data) {
     let message;
@@ -66,13 +63,16 @@ updateMessage(classState.PENDING);
 
 let currentCourse = null;
 
-function pushCourse(courseName) {
+function pushCourse(courseInfo) {
 
-    updateMessage(classState.PROCESSING, courseName);
+    let courseName = courseInfo.course;
+    let courseIndex = courseInfo.index;
 
-    currentCourse = courseName;
-    executeCourse(courseName);
-    console.error(`pushing course: ${courseName}`);
+    updateMessage(classState.PROCESSING, courseName + courseIndex);
+
+    currentCourse = `${courseName}:${courseIndex}`;
+    executeCourse(currentCourse);
+    console.error(`pushed course: ${JSON.stringify(courseInfo)}`);
 }
 
 function executeCourse(courseName) {
@@ -80,6 +80,8 @@ function executeCourse(courseName) {
     const path = require('path');
     const child = cp.spawn('electron', [path.join(__dirname, '../course/course.js'), courseName]);
     // const child = cp.spawn('/Users/nieyaolong/Code/VI/classroom_electron/package/classroomCourse.app/Contents/MacOS/classroomCourse');
+
+    ioSocket.emit('course-pushed');
 
     child.on('exit', (m) => {
         console.error(`course ended: ${m}`);

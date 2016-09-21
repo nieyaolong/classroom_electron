@@ -1,0 +1,160 @@
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<title>威爱教育</title>
+<link href="css/weiai.css" rel="stylesheet" type="text/css">
+<script src="js/zepto.min.js"></script>
+<style type="text/css">
+
+</style>
+</head>
+<body>
+<div class='main'>
+    <div class="leftNav">
+        <div class="panel">
+            <div class="panel_bg"></div>
+            <div class="panel_top">
+                <img alt="" src="img/weiai_t.png">
+                <div class="panel_title">威爱教育</div>
+            </div>
+            <div class="panel_room">
+                <span id="room1">计算机软件学院</span>/<span id="room2">计算机1班</span>
+            </div>
+            <div class="panel_class">
+                <div class="class_body" id="course_001">
+                    <div class="class_font">英语 场景1:飞机失事</div>
+                </div>
+                <div class="class_body" id="course_002">
+                    <div class="class_font">生物 皮肤</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="centerNav">
+        <div class="cTitle">
+            <table>
+                <tr>
+                    <td><span>A:</span>6个</td>
+                    <td><span>B:</span>6个</td>
+                    <td><span>C:</span>6个</td>
+                    <td><span>D:</span>6个</td>
+                </tr>
+            </table>
+        </div>
+        <div class="cBody">
+            <div class="sector">
+                <img alt="" src="img/weiai_s.png">
+            </div>
+            <div class="rows1">
+                <div class="cOne" id="client_1">
+                    <div class="cBor" >
+                        <div class="cStatus">未连接</div>
+                        <img alt="" src="img/weiai_no.png">
+                    </div>
+                    <div class="cRow"></div>
+                    <div class="cNumber">01</div>
+                </div>
+                <div class="cOne">
+                    <div class="cBor">
+                        <div class="cStatus">未连接</div>
+                        <img alt="" src="img/weiai_no.png">
+                    </div>
+                    <div class="cRow"></div>
+                    <div class="cNumber">02</div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    <div class="cover"></div>
+    <div class="cover2">
+        <img alt="" src="img/weiai_cover.png">
+        <div class="cover_panel">
+            <div class="cover_rol">
+                <span class="cover_font">专业：</span>
+                <select class="cover_select" id="select1">
+                    <option value="0">计算机软件学院</option>
+                    <option value="1">自动化学院</option>
+                </select>
+            </div>
+            <div class="cover_rol">
+                <span class="cover_font">班级：</span>
+                <select class="cover_select" id="select2">
+                    <option value='1'>计算机1班</option>
+                    <option value='2'>计算机2班</option>
+                    <option value='3'>计算机3班</option>
+                </select>
+            </div>
+            <div class="cover_rol2">
+                <input type="button" class="cover_btn" value="确认">
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+<script type="text/javascript">
+$('.panel_room').click(function() {
+    message_show();
+});
+
+$('.cover_btn').click(function() {
+    var n1 = $('#select1').val();
+    var n2 = $('#select2').val();
+    var str1,str2;
+    if (n1 == 0) {
+        str1 = '计算机软件学院';
+        str2 = '计算机'+n2+'班';
+    } else if (n1 == 1) {
+        str1 = '自动化专业';
+        str2 = '自动化'+n2+'班';
+    }
+    $('#room1').text(str1);
+    $('#room2').text(str2);
+    message_hide();
+});
+
+function message_show() {
+    $('.cover').show();
+    $('.cover2').show();
+}
+function message_hide() {
+    $('.cover').hide();
+    $('.cover2').hide();
+}
+$('#select1').change(function(e) {
+    var n = $('#select1').val();
+    get_select(n);
+});
+function get_select(n) {
+    $('#select2 option').remove();
+    if (n == 0) {
+        str="<option value='1'>计算机1班</option>";
+        $('#select2').append(str);
+        str="<option value='2'>计算机2班</option>";
+        $('#select2').append(str);
+        str="<option value='3'>计算机3班</option>";
+        $('#select2').append(str);
+    } else if (n == 1) {
+        str="<option value='1'>自动化1班</option>";
+        $('#select2').append(str);
+        str="<option value='2'>自动化2班</option>";
+        $('#select2').append(str);
+    }
+}
+
+function updateStatus(index, title, isConnect, message) {
+    try {
+        let div = document.getElementById(`client_${index}`);
+        div.children[0].children[0].innerText = message;
+        div.children[0].children[1].src = `img/weiai_${isConnect ? 'yes' : 'no'}.png`;
+        div.children[2].innerText = title;
+    } catch (err) {
+        console.error(err);
+    }
+}
+
+require('./renderer.js')
+
+</script>
+</html>

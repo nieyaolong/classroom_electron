@@ -4,16 +4,20 @@ const app = electron.app
 // Module to create native browser window.
 const BrowserWindow = electron.BrowserWindow
 
+const globalShortcut = electron.globalShortcut
+
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let mainWindow
 
 function createWindow() {
-    mainWindow = new BrowserWindow({width: 800, height: 600})
+    mainWindow = new BrowserWindow({width: 1366, height: 768})
 
-    mainWindow.loadURL(`file://${__dirname}/index.html`)
+    mainWindow.loadURL(`file://${__dirname}/weiai.html`)
 
-    mainWindow.webContents.openDevTools()
+    globalShortcut.register('alt+d', function () {
+        mainWindow.webContents.openDevTools()
+    });
 
 
     // Emitted when the window is closed.
