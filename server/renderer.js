@@ -11,13 +11,24 @@ server.listen(port, () => {
     console.log(`Server listening at port ${port}`);
 });
 
+let answers = {};
+
 io.on('connection', (socket) => {
 
     socket.on('login', (data) => {
         socket.index = data.index;
-        socket.name = data.name;
+        socket.name = data.user;
         socket.edu = data.edu;
-        console.log(`student login: ${data}`);
+        console.log(`student login: ${JSON.stringify(data)}`);
+    });
+
+    socket.on('course-done', (data) => {
+        if(data.answers instanceof Array && data.answers.length > 0) {
+            answers[socket.index] = data.answers[0];
+        } else {
+            console.error('BUG:bad answer');
+        }
+        console.log(`student ${socket.name} submit answer: ${JSON.stringify(answers)}`)
     });
 
     socket.on('disconnect', () => {
@@ -30,5 +41,5 @@ const startCourseButton = document.querySelector(".start-course");
 const courseNameInput = document.querySelector(".course-name");
 
 startCourseButton.onclick = () => {
-    io.sockets.emit('start course', {course:courseNameInput.value});
+    io.sockets.emit('start course', {course: courseNameInput.value});
 };

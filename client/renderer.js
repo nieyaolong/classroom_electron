@@ -7,6 +7,32 @@ var classState = {
     PENDING: 0, CONNECTED:1, PROCESSING: 2, DONE: 3
 };
 
+var params = require('url').parse(window.location.href, true).query;
+
+var setting = {
+    user: params['user-name'],
+    id: params['edu-id'],
+    server: params['server-addr'],
+    index: params['index']
+};
+
+const ioSocket = require('socket.io-client')(setting.server);
+
+ioSocket.on('connect', ()=> {
+    console.log(`connected :${setting.server}`);
+    ioSocket.emit('login', {index:1, user:setting.user, edu:setting.id});
+    updateMessage(classState.CONNECTED);
+});
+
+ioSocket.on('disconnect', () => {
+    console.log('disconnect with server');
+});
+
+ioSocket.on('start course', (data) => {
+    let course = data.course;
+    pushCourse(course);
+});
+
 function updateMessage(state, data) {
     let message;
     switch (state) {
@@ -29,26 +55,16 @@ function updateMessage(state, data) {
     p.innerHTML = message;
 }
 
-var params = require('url').parse(window.location.href, true).query;
+//init
+let nameText = document.querySelector(".user-name");
+nameText.innerHTML = setting.user;
 
-var setting = {
-    user: params['user-name'],
-    id: params['edu-id'],
-    server: params['server-addr']
-};
+let idText = document.querySelector(".user-id");
+idText.innerHTML = setting.id;
 
+updateMessage(classState.PENDING);
 
-function start() {
-    let name = document.querySelector(".user-name");
-    name.innerHTML = setting.user;
-
-    let id = document.querySelector(".user-id");
-    id.innerHTML = setting.id;
-
-    updateMessage(classState.PENDING);
-}
-
-var currentCourse = null;
+let currentCourse = null;
 
 function pushCourse(courseName) {
 
@@ -67,8 +83,6 @@ function executeCourse(courseName) {
 
     child.on('exit', (m) => {
         console.error(`course ended: ${m}`);
-        let pushButton = document.querySelector(".start-course");
-        pushButton.disabled = false;
     })
 }
 
@@ -79,6 +93,7 @@ function handleServerMessage(message) {
         //事件
         if(message.event === 'done') {
             updateMessage(classState.DONE, answers);
+            ioSocket.emit('course-done', {answers: answers});
             answers = [];
         }
     } else if(message.answer) {
@@ -104,23 +119,4 @@ var socketServer = require('net').createServer((c) => {
 });
 socketServer.listen(9100, () => {
     console.error('server bound');
-});
-
-start();
-
-const ioSocket = require('socket.io-client')(setting.server);
-
-ioSocket.on('connect', ()=> {
-    console.log(`connected :${setting.server}`);
-    ioSocket.emit('login', {index:1, user:setting.user, edu:setting.id})
-    updateMessage(classState.CONNECTED);
-});
-
-ioSocket.on('disconnect', () => {
-    console.log('disconnect with server');
-});
-
-ioSocket.on('start course', (data) => {
-    let course = data.course;
-    pushCourse(course);
 });
