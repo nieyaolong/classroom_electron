@@ -5,9 +5,9 @@
   "scripts": {
     "start-server": "electron ./server/server.js",
     "start-client": "electron ./client/client.js",
-    "package-server": "./server/ classroomServer --platform=mas --out ./package --version 1.3.5 --overwrite --icon client/classroom.icns",
-    "package-client": "./client/ classroomClient --platform=mas --out ./package --version 1.3.5 --overwrite --icon client/classroom.icns",
-    "package-course": "./course/ classroomCourse --platform=mas --out ./package --version 1.3.5 --overwrite --icon course/course.icns"
+    "package-server": "electron-packager ./server/ classroomServer --platform=win32 --out ./package --version 1.3.5 --overwrite --icon client/classroom.ico",
+    "package-client": "electron-packager ./client/ classroomClient --platform=win32 --out ./package --version 1.3.5 --overwrite --icon client/classroom.ico",
+    "package-course": "electron-packager ./course/ classroomCourse --platform=win32 --out ./package --version 1.3.5 --overwrite --icon course/course.ico"
   },
   "dependencies": {
     "electron": "^1.3.5",
