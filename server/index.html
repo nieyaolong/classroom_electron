@@ -1,40 +1,241 @@
-<!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>VI Classroom Client</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>威爱教育</title>
+    <link href="css/weiai.css" rel="stylesheet" type="text/css">
+    <script src="js/jquery-2.1.4.js"></script>
+
+    <script>
+        try {
+            $ = jQuery = module.exports;
+            // If you want module.exports to be empty, uncomment:
+            // module.exports = {};
+        } catch(e) {}
+    </script>
+
+    <script src="js/jquery.als-1.7.min.js"></script>
+    <style type="text/css">
+
+    </style>
 </head>
 <body>
-<h1>欢迎使用威爱教室教师端</h1>
-<h3>班级: <span class="class-name"/></h3>
-<h3>老师: <span class="teacher-name"/></h3>
-<h3>消息: <span class="message"/></h3>
-
-<div>
-    <div>
-        <p>学生连接状态:</p><br/>
-        <table border="1">
-            <tr><th>编号</th><th>状态</th><th>学生姓名</th><th>答案</th></tr>
-            <tr><td>1</td><td><p class="std-state-1"/></td><td><p class="std-name-1"></p></td><td><p class="std-answer-1"></p></td></tr>
-            <tr><td>2</td><td><p class="std-state-2"/></td><td><p class="std-name-2"></p></td><td><p class="std-answer-2"></p></td></tr>
-        </table>
+<div class='main'>
+    <img alt="" class="bg_img" src="img/weiai2_bg.jpg">
+    <div class="centerNav">
+        <div class="cTitle">
+            <div class="title_img">
+                <img alt="" src="img/weiai2_title.png">
+            </div>
+            <div class="title_font">威爱教育网络虚拟教学平台</div>
+        </div>
+        <div class="cSelect"></div>
+        <div class="cRaws">
+            <div class="trans5" id="trans5"><img alt="" src="img/weiai2_raw5.png"></div>
+            <div class="trans4" id="trans4"><img alt="" src="img/weiai2_raw4.png"></div>
+            <div class="trans3" id="trans3"><img alt="" src="img/weiai2_raw3.png"></div>
+            <div class="trans2" id="trans2"><img alt="" src="img/weiai2_raw2.png"></div>
+            <div class="trans1" id="trans1"><img alt="" src="img/weiai2_raw1.png"></div>
+        </div>
+        <div class="cBody">
+            <div class="bodys"></div>
+        </div>
+        <div class="cRoom"><div class="rooms">计算机1班</div></div>
+        <div class="cClass">
+            <div class="als-container" id="demo1">
+                <div class="als-viewport">
+                    <ul class="als-wrapper">
+                        <script>
+                            try {
+                                $ = jQuery = module.exports;
+                                // If you want module.exports to be empty, uncomment:
+                                // module.exports = {};
+                            } catch(e) {}
+                        </script>
+                    </ul>
+                </div>
+                <span class="als-prev"><svg xmlns="http://www.w3.org/2000/svg" version="1.1" class="svg-triangle">
+                    <polygon points="24,0 12,12 24,24"/>
+                </svg></span>
+                <span class="als-next"><svg xmlns="http://www.w3.org/2000/svg" version="1.1" class="svg-triangle">
+                    <polygon points="0,0 12,12 0,24"/>
+                </svg></span>
+            </div>
+        </div>
     </div>
-
-</div>
-
-
-<div>
-    <div>
-        <p>请输入课程名称:</p>
-        <input type="text" class="course-name">
-        <input type="button" class="start-course" value="开始课程"/>
+    <div class="cover"></div>
+    <div class="cover2">
+        <img alt="" src="img/weiai_cover.png">
+        <div class="cover_panel">
+            <div class="cover_rol">
+                <span class="cover_font">专业：</span>
+                <select class="cover_select" id="select1">
+                    <option value="0">计算机软件学院</option>
+                    <option value="1">自动化学院</option>
+                </select>
+            </div>
+            <div class="cover_rol">
+                <span class="cover_font">班级：</span>
+                <select class="cover_select" id="select2">
+                    <option value='1'>计算机1班</option>
+                    <option value='2'>计算机2班</option>
+                    <option value='3'>计算机3班</option>
+                </select>
+            </div>
+            <div class="cover_rol2">
+                <input type="button" class="cover_btn" value="确认">
+            </div>
+        </div>
     </div>
-
 </div>
 </body>
+<script type="text/javascript">
 
-<script>
-    // You can also require other files to run in this process
-    require('./renderer.js')
+    start()
+    function start() {
+        get_stus(); //添加学生
+        raws(); //图片旋转
+        get_answer(); //添加答案
+        get_class(); //添加课程
+    }
+    //选班
+    $('.rooms').click(function() {
+        message_show();
+    });
+    //选班
+    $('.cover_btn').click(function() {
+        var n1 = $('#select1').val();
+        var n2 = $('#select2').val();
+        var str1;
+        if (n1 == 0) {
+            str1 = '计算机'+n2+'班';
+        } else if (n1 == 1) {
+            str1 = '自动化'+n2+'班';
+        }
+        $('.rooms').text(str1);
+        message_hide();
+    });
+
+    function message_show() {
+        $('.cover').show();
+        $('.cover2').show();
+    }
+    function message_hide() {
+        $('.cover').hide();
+        $('.cover2').hide();
+    }
+    $('#select1').change(function(e) {
+        var n = $('#select1').val();
+        get_select(n);
+    });
+    //选班
+    function get_select(n) {
+        $('#select2 option').remove();
+        if (n == 0) {
+            str2="<option value='1'>计算机1班</option>";
+            $('#select2').append(str2);
+            str2="<option value='2'>计算机2班</option>";
+            $('#select2').append(str2);
+            str2="<option value='3'>计算机3班</option>";
+            $('#select2').append(str2);
+        } else if (n == 1) {
+            str2="<option value='1'>自动化1班</option>";
+            $('#select2').append(str2);
+            str2="<option value='2'>自动化2班</option>";
+            $('#select2').append(str2);
+        }
+    }
+    //添加答案
+    function get_answer() {
+        var answer1 = 5; //学生答案
+        var answer2 = 6;
+        var answer3 = 7;
+        var answer4 = 8;
+        var str = '';
+        str +='<div class="selects"><div class="stu_select">A:</div><div class="stu_select">'+answer1+'</div></div>';
+        str +='<div class="selects"><div class="stu_select">B:</div><div class="stu_select">'+answer2+'</div></div>';
+        str +='<div class="selects"><div class="stu_select">C:</div><div class="stu_select">'+answer3+'</div></div>';
+        str +='<div class="selects"><div class="stu_select">D:</div><div class="stu_select">'+answer4+'</div></div>';
+        $('.cSelect').append(str);
+    }
+    //添加学生
+    function get_stus() {
+        var student_id = 1; //学生id
+        var student_status = 1; //学生状态 ,0未登录，1已登录，2已答题
+        var student_ans = 'A'; //学生答案
+        var avatar = 'img/weiai2_no.png'; //头像，默认未登录
+        if (student_status == 1) {
+            avatar = 'img/weiai2_yes.png';
+        } else if (student_status == 2) {
+            avatar = 'img/weiai2_ans.png';
+        }
+        if (student_status != 2) {
+            student_ans = '';
+        }
+        var i=1;
+        var str = '';
+        for (i=1; i<31; i++) {
+            student_id = i;
+            str +='<div class="cOne"><div class="cBor" onClick="into_student('+student_id+')"><img alt="" src="'+avatar+'"></div><div class="body_answer">'+student_ans+'</div><div class="cNumber">'+ student_id +'</div></div>';
+        }
+        $('.bodys').append(str);
+    }
+
+    //进入学生
+    function into_student(student_id) {
+        alert(student_id);
+    }
+
+    //添加课程
+    function get_class() {
+        var class_id = 1; //课程id
+        var class_title = '点击此处进入课程'; //课程标题
+        var class_rec = '点击此处进入课程，请专注学习，认真上课，好好学习，天天向上...'; //课程描述
+        var i=1;
+        var str = '';
+        for (i=1; i<8; i++) {
+            str +='<li class="als-item"><div class="classOne" onClick="into_class('+class_id+')"><img alt="" src="img/weiai2_class.png"><div class="class_titel">'+ class_title +'</div><div class="class_rec">'+ class_rec +'</div><div class="class_start">启动</div></div></li>';
+        }
+        $('.als-wrapper').append(str);
+    }
+    //进入课程
+    function into_class(class_id) {
+        alert(class_id);
+    }
+
+    //图片旋转
+    function raws() {
+        var rot1=0;
+        var rot2=0;
+        var rot3=0;
+        var rot4=0;
+        is_play1 = setInterval(function(){
+            rot1++;
+            rot2--;
+            $('.trans3').attr('style','-webkit-transform:rotate('+rot1+'deg);');
+            $('.trans2').attr('style','-webkit-transform:rotate('+rot2+'deg);');
+            $('.trans3').attr('style','transform:rotate('+rot1+'deg);');
+            $('.trans2').attr('style','transform:rotate('+rot2+'deg);');
+        }, 25);
+        is_play2 = setInterval(function(){
+            rot3++;
+            rot4--;
+            $('.trans5').attr('style','-webkit-transform:rotate('+rot3+'deg);');
+            $('.trans4').attr('style','-webkit-transform:rotate('+rot4+'deg);');
+            $('.trans5').attr('style','transform:rotate('+rot3+'deg);');
+            $('.trans4').attr('style','transform:rotate('+rot4+'deg);');
+        }, 20);
+    }
+    is_play3 = setInterval(function() {
+        window.clearInterval(is_play3)
+        //als插件，课程左右滑动效果
+        $("#demo1").als({
+            visible_items: 4,
+            scrolling_items: 1,
+            orientation: "horizontal",
+            circular: "no",
+            autoscroll: "no"
+        });
+    },50);
 </script>
 </html>

@@ -1,72 +1,69 @@
 @CHARSET "UTF-8";
-    body {padding:0; margin: 0; background-image:url('../img/weiai_bg.png'); background-repeat:no-repeat; font-family:arial,Hiragino Sans GB,Microsoft Yahei,"宋体";}
+    body {padding:0; margin: 0; font-family:arial,Hiragino Sans GB,Microsoft Yahei,"宋体";}
     .main {width:100%; margin:0 auto; min-width:1280px;}
-    .leftNav {float:left; width:25%;}
-    .leftNav .panel {position: relative; margin-top:20px; margin-left:20px; width:95%; height:580px; border-radius: 20px; overflow: hidden;}
-    .leftNav .panel .panel_bg {position: absolute; top:0px; width:100%; height:100%; background-color:#ffffff; opacity: 0.2; z-index:-1;}
-    .leftNav .panel .panel_top {margin:0 auto; width:96%; height:100px; border-bottom:1px solid #dedede;}
-    .leftNav .panel .panel_top img {float:left; margin:25px 10px 10px 50px; width:50px;}
-    .leftNav .panel .panel_top .panel_title {float:left; margin:30px 10px; font-size:26px; color:#ffffff;}
-    .leftNav .panel .panel_room {margin:25px auto; width:100%; text-align:center; font-size:16px; color:#ffffff; cursor: pointer;}
-    .leftNav .panel .panel_room span {margin:0px 2px; font-size:14px;}
-    .leftNav .panel .panel_class {width:100%; overflow-y:auto; overflow-x:auto; width:100%; height:400px;}
-    .leftNav .panel .panel_class::-webkit-scrollbar{width:2px;}
-    .leftNav .panel .panel_class::-webkit-scrollbar-track{background-color:#418abc;}
-    .leftNav .panel .panel_class::-webkit-scrollbar-thumb{background-color:#bababa;}
-    .leftNav .panel .panel_class::scrollbar{width:2px;}
-    .leftNav .panel .panel_class .class_body {margin:5px auto; width:90%; cursor: pointer;}
-    .leftNav .panel .panel_class .class_img{margin:15px auto; width:100%; height:50px; border-radius: 5px; overflow: hidden; border:1px solid #dedede;}
-    .leftNav .panel .panel_class .class_font {margin:-2px auto 30px auto; width:100%; font-size:12px; color:#ffffff;}
+    .main .bg_img {position: absolute; width:100%; height:100%;}
+    .centerNav {position: relative; margin:0 auto; width:100%;}
     
-    .centerNav {float:right; width:74.5%;}
-    .centerNav .cTitle {margin:20px 40px; width:92%; border:1px solid #ffffff; border-radius: 20px;}
-    .centerNav .cTitle table {width:100%;}
-    .centerNav .cTitle table td {color:#ffffff; font-size:30px; height:20px; text-align:center; padding:5px;}
-    .centerNav .cTitle table td span {font-weight:bold; padding:5px;}
+    .centerNav .cTitle {position: relative; margin:0px auto; width:28%; border:1px solid transparent;}
+    .centerNav .cTitle .title_img {float:left; margin:15px 5px 0px 30px;}
+    .centerNav .cTitle .title_img img {width:40px;}
+    .centerNav .cTitle .title_font {float:left; margin:22px 5px; color:#ffffff; font-size:20px; height:20px; text-align:center;}
     
-    .centerNav .cBody {position: relative;}
-    .centerNav .cBody .sector {position: absolute; top:0px; width:100%; text-align:center;}
-    .centerNav .cBody .sector img {width:96%;}
+    .centerNav .cSelect {position: relative; margin:0px; top:46px; height:100px; left:7%; width:15%;}
+    .centerNav .cSelect .selects {float:left; width:40%; margin:6px 5px; color:#ffffff; font-size:20px; height:20px; text-align:center;}
+    .centerNav .cSelect .stu_select {float:left; width:49%; margin:0px; color:#ffffff; font-size:20px; height:20px; text-align:center;}
+    
+    .centerNav .cRoom {position: absolute; top:124px; left:45%; width:10%;}
+    .centerNav .cRoom .rooms {width:100%; color:#ffffff; font-size:15px; text-align:center; cursor: pointer;}
+    
+    .centerNav .cRaws {position: absolute; top:85px; left:82%; width:180px; text-align:center;}
+    .centerNav .cRaws img {height:140px; width:140px;}
+    .centerNav .cRaws .trans1 {position: absolute; height:140px; width:140px;}
+    .centerNav .cRaws .trans2 {position: absolute; left:2px; top:-2px; height:140px; width:140px;}
+    .centerNav .cRaws .trans3 {position: absolute; left:2px; top:-2px; height:140xp; width:140px;}
+    .centerNav .cRaws .trans4 {position: absolute; left:2px; top:-2px; height:140xp; width:140px;}
+    .centerNav .cRaws .trans5 {position: absolute; left:2px; top:-2px; height:140xp; width:140px;}
+    
+    .centerNav .cBody {position: relative; width:100%;}
     .centerNav .cBody .cOne {position: absolute; width:70px; margin:1px; cursor: pointer;}
     .centerNav .cBody .cOne .cBor {width:100%;}
-    .centerNav .cBody .cOne .cRow {width:100%; height:5px; border-bottom:1px solid #ffffff; border-radius: 100%;}
-    .centerNav .cBody .cOne .cStatus {margin:5px 0px; font-size:12px; color:#ffffff; text-align:center;}
-    .centerNav .cBody .cOne .cNumber {margin:5px 0px; font-size:24px; color:#ffffff; text-align:center;}
-    .centerNav .cBody .cOne img {width:40px; margin:5px 15px 10px 15px;}
+    .centerNav .cBody .cOne .body_answer {position: absolute; top:16px; left:30px; font-size:16px; color:#ffffff;}
+    .centerNav .cBody .cOne .cNumber {margin:5px 0px; font-size:18px; color:#ffffff; text-align:center;}
+    .centerNav .cBody .cOne img {width:40px; margin:5px 15px 5px 15px;}
     
-    .centerNav .cBody .rows1 {position: relative; margin:30px auto; width:70px; height:130px;}
-    .centerNav .cBody .rows1 .cOne:nth-child(1) {top:10px; right:255px; -webkit-transform: rotate(24deg); transform: rotate(24deg);}
-    .centerNav .cBody .rows1 .cOne:nth-child(2) {top:36px; right:185px; -webkit-transform: rotate(16deg); transform: rotate(16deg);}
-    .centerNav .cBody .rows1 .cOne:nth-child(3) {top:52px; right:113px; -webkit-transform: rotate(9deg); transform: rotate(9deg);}
-    .centerNav .cBody .rows1 .cOne:nth-child(4) {top:60px; right:37px; -webkit-transform: rotate(3deg); transform: rotate(3deg);}
-    .centerNav .cBody .rows1 .cOne:nth-child(5) {top:60px; left:37px; -webkit-transform: rotate(-3deg); transform: rotate(-3deg);}
-    .centerNav .cBody .rows1 .cOne:nth-child(6) {top:52px; left:113px; -webkit-transform: rotate(-9deg); transform: rotate(-9deg);}
-    .centerNav .cBody .rows1 .cOne:nth-child(7) {top:36px; left:185px; -webkit-transform: rotate(-16deg); transform: rotate(-16deg);}
-    .centerNav .cBody .rows1 .cOne:nth-child(8) {top:10px; left:255px; -webkit-transform: rotate(-24deg); transform: rotate(-24deg);}
+    .centerNav .cBody .bodys {position: relative; margin: 0px auto; width:70px; height:70px;}
+    .centerNav .cBody .bodys .cOne:nth-child(1) {top:40px; right:285px;}
+    .centerNav .cBody .bodys .cOne:nth-child(2) {top:54px; right:205px;}
+    .centerNav .cBody .bodys .cOne:nth-child(3) {top:63px; right:125px;}
+    .centerNav .cBody .bodys .cOne:nth-child(4) {top:70px; right:40px;}
+    .centerNav .cBody .bodys .cOne:nth-child(5) {top:70px; left:40px;}
+    .centerNav .cBody .bodys .cOne:nth-child(6) {top:63px; left:125px;}
+    .centerNav .cBody .bodys .cOne:nth-child(7) {top:54px; left:205px;}
+    .centerNav .cBody .bodys .cOne:nth-child(8) {top:40px; left:285px;}
     
-    .centerNav .cBody .rows1 .cOne:nth-child(9) {top:157px; right:321px; -webkit-transform: rotate(24deg); transform: rotate(24deg);}
-    .centerNav .cBody .rows1 .cOne:nth-child(10) {top:184px; right:252px; -webkit-transform: rotate(18deg); transform: rotate(18deg);}
-    .centerNav .cBody .rows1 .cOne:nth-child(11) {top:204px; right:181px; -webkit-transform: rotate(13deg); transform: rotate(13deg);}
-    .centerNav .cBody .rows1 .cOne:nth-child(12) {top:217px; right:109px; -webkit-transform: rotate(7deg); transform: rotate(7deg);}
-    .centerNav .cBody .rows1 .cOne:nth-child(13) {top:223px; right:36px; -webkit-transform: rotate(2deg); transform: rotate(2deg);}
-    .centerNav .cBody .rows1 .cOne:nth-child(14) {top:223px; left:36px; -webkit-transform: rotate(-2deg); transform: rotate(-2deg);}
-    .centerNav .cBody .rows1 .cOne:nth-child(15) {top:217px; left:109px; -webkit-transform: rotate(-7deg); transform: rotate(-7deg);}
-    .centerNav .cBody .rows1 .cOne:nth-child(16) {top:204px; left:181px; -webkit-transform: rotate(-13deg); transform: rotate(-13deg);}
-    .centerNav .cBody .rows1 .cOne:nth-child(17) {top:184px; left:252px; -webkit-transform: rotate(-18deg); transform: rotate(-18deg);}
-    .centerNav .cBody .rows1 .cOne:nth-child(18) {top:157px; left:321px; -webkit-transform: rotate(-24deg); transform: rotate(-24deg);}
+    .centerNav .cBody .bodys .cOne:nth-child(9) {top:152px; right:357px;}
+    .centerNav .cBody .bodys .cOne:nth-child(10) {top:162px; right:278px;}
+    .centerNav .cBody .bodys .cOne:nth-child(11) {top:172px; right:201px;}
+    .centerNav .cBody .bodys .cOne:nth-child(12) {top:182px; right:123px;}
+    .centerNav .cBody .bodys .cOne:nth-child(13) {top:188px; right:39px;}
+    .centerNav .cBody .bodys .cOne:nth-child(14) {top:188px; left:39px;}
+    .centerNav .cBody .bodys .cOne:nth-child(15) {top:182px; left:123px;}
+    .centerNav .cBody .bodys .cOne:nth-child(16) {top:172px; left:201px;}
+    .centerNav .cBody .bodys .cOne:nth-child(17) {top:162px; left:278px;}
+    .centerNav .cBody .bodys .cOne:nth-child(18) {top:152px; left:357px;}
     
-    .centerNav .cBody .rows1 .cOne:nth-child(19) {top:306px; right:388px; -webkit-transform: rotate(24deg); transform: rotate(24deg);}
-    .centerNav .cBody .rows1 .cOne:nth-child(20) {top:333px; right:321px; -webkit-transform: rotate(20deg); transform: rotate(20deg);}
-    .centerNav .cBody .rows1 .cOne:nth-child(21) {top:355px; right:252px; -webkit-transform: rotate(15deg); transform: rotate(15deg);}
-    .centerNav .cBody .rows1 .cOne:nth-child(22) {top:370px; right:182px; -webkit-transform: rotate(9deg); transform: rotate(9deg);}
-    .centerNav .cBody .rows1 .cOne:nth-child(23) {top:379px; right:109px; -webkit-transform: rotate(5deg); transform: rotate(5deg);}
-    .centerNav .cBody .rows1 .cOne:nth-child(24) {top:384px; right:35px; -webkit-transform: rotate(2deg); transform: rotate(2deg);}
-    .centerNav .cBody .rows1 .cOne:nth-child(25) {top:384px; left:35px; -webkit-transform: rotate(-2deg); transform: rotate(-2deg);}
-    .centerNav .cBody .rows1 .cOne:nth-child(26) {top:379px; left:109px; -webkit-transform: rotate(-5deg); transform: rotate(-5deg);}
-    .centerNav .cBody .rows1 .cOne:nth-child(27) {top:370px; left:182px; -webkit-transform: rotate(-9deg); transform: rotate(-9deg);}
-    .centerNav .cBody .rows1 .cOne:nth-child(28) {top:355px; left:252px; -webkit-transform: rotate(-15deg); transform: rotate(-15deg);}
-    .centerNav .cBody .rows1 .cOne:nth-child(29) {top:333px; left:321px; -webkit-transform: rotate(-20deg); transform: rotate(-20deg);}
-    .centerNav .cBody .rows1 .cOne:nth-child(30) {top:306px; left:388px; -webkit-transform: rotate(-24deg); transform: rotate(-24deg);}
+    .centerNav .cBody .bodys .cOne:nth-child(19) {top:254px; right:425px;}
+    .centerNav .cBody .bodys .cOne:nth-child(20) {top:267px; right:348px;}
+    .centerNav .cBody .bodys .cOne:nth-child(21) {top:277px; right:271px;}
+    .centerNav .cBody .bodys .cOne:nth-child(22) {top:285px; right:197px;}
+    .centerNav .cBody .bodys .cOne:nth-child(23) {top:291px; right:120px;}
+    .centerNav .cBody .bodys .cOne:nth-child(24) {top:294px; right:38px;}
+    .centerNav .cBody .bodys .cOne:nth-child(25) {top:294px; left:38px;}
+    .centerNav .cBody .bodys .cOne:nth-child(26) {top:291px; left:120px;}
+    .centerNav .cBody .bodys .cOne:nth-child(27) {top:285px; left:197px;}
+    .centerNav .cBody .bodys .cOne:nth-child(28) {top:277px; left:271px;}
+    .centerNav .cBody .bodys .cOne:nth-child(29) {top:267px; left:348px;}
+    .centerNav .cBody .bodys .cOne:nth-child(30) {top:254px; left:425px;}
     
     .cover {position:fixed; top:0; left:0; width:100%; height:100%; background-color: #000000; opacity: 0.7; display:none;}
     .cover2 {position:fixed; top:23%; left:25%; width:640px; display:none;}
@@ -74,8 +71,79 @@
     .cover2 .cover_panel {position: absolute; top:20%; left:30%; width:49%;}
     .cover2 .cover_panel .cover_rol {margin:15px auto;}
     .cover2 .cover_panel .cover_font {font-size:20px; color:#ffffff;}
-    .cover2 .cover_panel .cover_select {appearance:none; -moz-appearance:none; -webkit-appearance:none; background: url("img/weiai_sel.png") no-repeat scroll right center transparent; padding-right: 28px; width:200px; height:26px; border:1px solid #ffffff; background-color:#d5e9f2; border-radius: 5px;}
+    .cover2 .cover_panel .cover_select {appearance:none; -moz-appearance:none; -webkit-appearance:none; background: url("/img/weiai_sel.png") no-repeat scroll right center transparent; padding-right: 28px; width:200px; height:26px; border:1px solid #ffffff; background-color:#d5e9f2; border-radius: 5px;}
     .cover2 .cover_panel .cover_label {position: relative; left:-36px; top:13px;}
     .cover2 .cover_panel .cover_label img {width:36px;}
     .cover2 .cover_panel .cover_rol2 {margin:50px 63px;}
     .cover2 .cover_panel .cover_btn {width:200px; height:36px; border:1px solid #0168b7; background-color:#0168b7; border-radius: 5px; font-size:16px; color:#ffffff; cursor: pointer;}
+    
+    .centerNav .cClass {position: relative; top:345px; width:100%; height:140px;}
+    .centerNav .cClass .classOne {float:left; margin:0px 3%; width:94%;}
+    .centerNav .cClass .classOne img {width:100%;}
+    .centerNav .cClass .classOne .class_titel {position: absolute; top:16px; left:22px; width:160px; color:#ffffff; font-size:14px; text-align: left; display:block;white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+    .centerNav .cClass .classOne .class_rec {position: absolute; top:44px; left:20px; width:160px; height:60px; color:#ffffff; font-size:14px; text-align: left; display:block; overflow:hidden; text-overflow:ellipsis;}
+    .centerNav .cClass .classOne .class_start {position: absolute; top:44px; right:40px; color:#ffffff; font-size:22px;}
+    .centerNav .cClass .svg-triangle {width: 30px; height: 30px; margin: auto;}
+    .centerNav .cClass .svg-triangle polygon{fill:#0000FF;}
+    
+.als-container {
+    position: relative;
+    width: 100%;
+    margin: 0px auto;
+    z-index: 0;
+}
+
+.als-viewport {
+    position: relative;
+    overflow: hidden;
+    margin: 0px auto;
+}
+
+.als-wrapper {
+    position: relative;
+    list-style: none;
+    left:-40px;
+    margin: 0px;
+}
+
+.als-item {
+    position: relative;
+    display: block;
+    text-align: center;
+    cursor: pointer;
+    float: left;
+}
+
+.als-prev, .als-next {
+    position: absolute;
+    cursor: pointer;
+    clear: both;
+}
+
+#demo1 {
+    margin: 40px auto;
+}
+
+#demo1 .als-item {
+    margin: 0px 0px;
+    padding: 0px 0px;
+    text-align: center;
+}
+
+#demo1 .als-item img {
+    display: block;
+    margin: 0 auto;
+    vertical-align: middle;
+}
+
+#demo1 .als-prev, #demo1 .als-next {
+    top: 50px;
+}
+
+#demo1 .als-prev {
+    left: 20px;
+}
+
+#demo1 .als-next {
+    right: 15px;
+}

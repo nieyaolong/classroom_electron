@@ -13,7 +13,7 @@ let mainWindow
 function createWindow() {
     mainWindow = new BrowserWindow({width: 1366, height: 768})
 
-    mainWindow.loadURL(`file://${__dirname}/weiai.html`)
+    mainWindow.loadURL(`file://${__dirname}/index.html`)
 
     globalShortcut.register('alt+d', function () {
         mainWindow.webContents.openDevTools()
