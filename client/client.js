@@ -1,19 +1,25 @@
 const electron = require('electron')
 // Module to control application life.
-const app = electron.app
+const app = electron.app;
+const Tray = electron.Tray;
+const Menu = electron.Menu;
+const globalShortcut = electron.globalShortcut;
+
 // Module to create native browser window.
-const BrowserWindow = electron.BrowserWindow
+const BrowserWindow = electron.BrowserWindow;
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
-let mainWindow
+let mainWindow;
 
 function createWindow() {
-    mainWindow = new BrowserWindow({width: 800, height: 600})
+    mainWindow = new BrowserWindow({width: 800, height: 600, frame:false, resize:false});
 
-    mainWindow.loadURL(`file://${__dirname}/login.html`)
+    mainWindow.loadURL(`file://${__dirname}/login.html`);
 
-    mainWindow.webContents.openDevTools()
+    globalShortcut.register('alt+d', function () {
+        mainWindow.webContents.openDevTools()
+    });
 
 
     // Emitted when the window is closed.
@@ -51,3 +57,14 @@ app.on('activate', function () {
 
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and require them here.
+
+let tray = null;
+app.on('ready', () => {
+    tray = new Tray('img/classroom.ico');
+    const contextMenu = Menu.buildFromTemplate([
+        {label:'登出', type:'normal', click : ()=> {mainWindow.loadURL(`file://${__dirname}/login.html`)} },
+        {label: '退出', type: 'normal', click: ()=> {app.exit(0)}}
+    ]);
+    tray.setToolTip('威爱教室客户端');
+    tray.setContextMenu(contextMenu);
+});
