@@ -47,16 +47,7 @@
         <div class="cClass">
             <div class="als-container" id="demo1">
                 <div class="als-viewport">
-                    <ul class="als-wrapper">
-                        <script>
-                            try {
-                                $ = jQuery = module.exports;
-                                // If you want module.exports to be empty, uncomment:
-                                // module.exports = {};
-                            } catch (e) {
-                            }
-                        </script>
-                    </ul>
+                    <ul class="als-wrapper"/>
                 </div>
                 <span class="als-prev"><svg xmlns="http://www.w3.org/2000/svg" version="1.1" class="svg-triangle">
                     <polygon points="24,0 12,12 24,24"/>
@@ -228,6 +219,7 @@
 
     //init
     init_seat(); //添加学生
+    raws();
 
     //图片旋转
     function raws() {
@@ -251,9 +243,14 @@
             $('.trans5').attr('style', 'transform:rotate(' + rot3 + 'deg);');
             $('.trans4').attr('style', 'transform:rotate(' + rot4 + 'deg);');
         }, 20);
+    }
 
-        window.onload = () => {
-            //als插件，课程左右滑动效果
+    require('./renderer.js');
+
+    window.onload = () => {
+        console.log(document.getElementById('demo1'));
+        //als插件，课程左右滑动效果
+        if(document.querySelectorAll('.als-item').length > 4) {
             $("#demo1").als({
                 visible_items: 4,
                 scrolling_items: 1,
@@ -261,11 +258,11 @@
                 circular: "no",
                 autoscroll: "no"
             });
-        };
-
-
-    }
-
-    require('./renderer.js');
+        } else {
+            $('.als-prev').hide();
+            $('.als-next').hide();
+            $('.als-viewport').css('padding', '0 80px');
+        }
+    };
 </script>
 </html>

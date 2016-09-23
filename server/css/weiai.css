@@ -102,8 +102,8 @@
 .als-wrapper {
     position: relative;
     list-style: none;
-    left:-40px;
     margin: 0px;
+    padding: 0px;
 }
 
 .als-item {

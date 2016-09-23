@@ -88,6 +88,9 @@ showStudent = (index) => {
     alert(message);
 };
 
-let courseInfo = [{id:'1', title:'英语学习第一课', desc:'大概是飞机坠毁了', questions:[{question:'问题1',answer:'A'}]}];
+let courseInfo = [
+    {id:'1', title:'英语学习第一课', desc:'大概是飞机坠毁了', questions:[{question:'问题1',answer:'A'}]},
+];
 
+console.log('init_course');
 init_courses(courseInfo, pushCourse);
