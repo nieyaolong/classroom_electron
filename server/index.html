@@ -143,24 +143,35 @@
         }
     }
     //添加答案
-    function get_answer() {
-        var answer1 = 5; //学生答案
-        var answer2 = 6;
-        var answer3 = 7;
-        var answer4 = 8;
-        var str = '';
-        str += '<div class="selects"><div class="stu_select">A:</div><div class="stu_select">' + answer1 + '</div></div>';
-        str += '<div class="selects"><div class="stu_select">B:</div><div class="stu_select">' + answer2 + '</div></div>';
-        str += '<div class="selects"><div class="stu_select">C:</div><div class="stu_select">' + answer3 + '</div></div>';
-        str += '<div class="selects"><div class="stu_select">D:</div><div class="stu_select">' + answer4 + '</div></div>';
-        $('.cSelect').append(str);
-    }
+
 
     var seatStatus = {
         DISCONNECT: 1, CONNECTED: 2, PROCESSING: 3, DONE: 4
     };
 
-    var seatInfo = {};
+    var seatInfo = new Map();
+
+    function update_answer() {
+        let sum = {};
+        Object.keys(seatInfo).forEach(index => {
+            let seat = seatInfo[index];
+            let answer = seat.answer;
+            if(answer) {
+                sum[answer] = (sum[answer] ? sum[answer] : 0 ) + 1;
+            }
+        });
+
+        var keys = Object.keys(sum);
+        keys = keys.sort();
+
+        let str = '';
+        for(let i = 0; i < keys.length; i++) {
+            str += `<div class="selects"><div class="stu_select">${keys[i]}:</div><div class="stu_select">${sum[keys[i]]}</div></div>`;
+        }
+        console.log(str);
+        $('.cSelect').empty();
+        $('.cSelect').append(str);
+    }
 
     function init_seat() {
         var str = '';
@@ -190,7 +201,7 @@
                 break;
         }
 
-        var answer = seatInfo[seat_id] ? seatInfo[seat_id].answer : '';
+        var answer = (seatInfo[seat_id].status == seatStatus.DONE && seatInfo[seat_id]) ? seatInfo[seat_id].answer : '';
 
         document.querySelectorAll('.cOne').forEach(e => {
             if (e.getAttribute('sid') == seat_id) {
@@ -217,8 +228,6 @@
 
     //init
     init_seat(); //添加学生
-    get_answer(); //添加答案
-
 
     //图片旋转
     function raws() {

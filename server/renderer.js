@@ -7,8 +7,6 @@ const io = require("socket.io")(server);
 
 const port = 9101;
 
-let answers = {};
-
 server.listen(port, () => {
     console.log(`Server listening at port ${port}`);
 });
@@ -27,26 +25,30 @@ io.on('connection', (socket) => {
 
     socket.on('course-pushed', ()=> {
         seatInfo[socket.index].status = seatStatus.PROCESSING;
+        Object.keys(seatInfo).forEach(index => {
+            seatInfo[index].answer = undefined;
+        });
         updateStatus(socket.index);
     });
 
     socket.on('course-done', (data) => {
         let answer;
         if(data.answers instanceof Array && data.answers.length > 0) {
-            answer = answers[socket.index] = data.answers[0];
+            answer = data.answers[0];
         } else {
             console.error('BUG:bad answer');
         }
         seatInfo[socket.index].status = seatStatus.DONE;
         seatInfo[socket.index].answer = answer;
 
-        console.log(`student ${socket.name} submit answer: ${answer}, total: ${JSON.stringify(answers)}`);
-        updateStatus(socket.index)
+        console.log(`student ${socket.name} submit answer: ${answer}`);
+        updateStatus(socket.index);
+        update_answer();
     });
 
     socket.on('disconnect', () => {
         console.log(`student ${socket.index} logout.`);
-        seatInfo[socket.index].status = seatStatus.DISCONNECT;
+        seatInfo[socket.index] = {status:seatStatus.DISCONNECT};
         updateStatus(socket.index);
     });
 
@@ -61,7 +63,7 @@ showStudent = (index) => {
     console.log(`showing student ${index}`);
     let statusInfo = '';
     let studentInfo = seatInfo[index].status == seatStatus.DISCONNECT ? null : `姓名: ${seatInfo[index].user}\n学号:${seatInfo[index].edu}`;
-    let answerInfo = seatInfo[index].status == seatStatus.DONE && seatInfo[index].answer ? seatInfo[index].answer : null;
+    let answerInfo = (seatInfo[index].status == seatStatus.DONE && seatInfo[index].answer) ? `\n答题结果:${seatInfo[index].answer}` : null;
     switch (seatInfo[index].status) {
         case seatStatus.DISCONNECT:
             statusInfo = '未连接';
