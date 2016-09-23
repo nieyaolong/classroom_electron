@@ -13,7 +13,7 @@ const BrowserWindow = electron.BrowserWindow;
 let mainWindow;
 
 function createWindow() {
-    mainWindow = new BrowserWindow({width: 800, height: 600, frame:false, resize:false});
+    mainWindow = new BrowserWindow({width: 800, height: 600, resize: false});
 
     mainWindow.loadURL(`file://${__dirname}/login.html`);
 
@@ -58,13 +58,23 @@ app.on('activate', function () {
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and require them here.
 
-let tray = null;
-app.on('ready', () => {
-    tray = new Tray('img/classroom.ico');
-    const contextMenu = Menu.buildFromTemplate([
-        {label:'登出', type:'normal', click : ()=> {mainWindow.loadURL(`file://${__dirname}/login.html`)} },
-        {label: '退出', type: 'normal', click: ()=> {app.exit(0)}}
-    ]);
-    tray.setToolTip('威爱教室客户端');
-    tray.setContextMenu(contextMenu);
-});
+if (process.platform == 'win32') {
+    let tray = null;
+    app.on('ready', () => {
+        tray = new Tray('img/classroom.ico');
+        const contextMenu = Menu.buildFromTemplate([
+            {
+                label: '登出', type: 'normal', click: ()=> {
+                mainWindow.loadURL(`file://${__dirname}/login.html`)
+            }
+            },
+            {
+                label: '退出', type: 'normal', click: ()=> {
+                app.exit(0)
+            }
+            }
+        ]);
+        tray.setToolTip('威爱教室客户端');
+        tray.setContextMenu(contextMenu);
+    });
+}

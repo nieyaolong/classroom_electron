@@ -11,7 +11,8 @@
             $ = jQuery = module.exports;
             // If you want module.exports to be empty, uncomment:
             // module.exports = {};
-        } catch(e) {}
+        } catch (e) {
+        }
     </script>
 
     <script src="js/jquery.als-1.7.min.js"></script>
@@ -40,7 +41,9 @@
         <div class="cBody">
             <div class="bodys"></div>
         </div>
-        <div class="cRoom"><div class="rooms">计算机1班</div></div>
+        <div class="cRoom">
+            <div class="rooms">计算机1班</div>
+        </div>
         <div class="cClass">
             <div class="als-container" id="demo1">
                 <div class="als-viewport">
@@ -50,7 +53,8 @@
                                 $ = jQuery = module.exports;
                                 // If you want module.exports to be empty, uncomment:
                                 // module.exports = {};
-                            } catch(e) {}
+                            } catch (e) {
+                            }
                         </script>
                     </ul>
                 </div>
@@ -91,26 +95,19 @@
 </body>
 <script type="text/javascript">
 
-    start()
-    function start() {
-        get_stus(); //添加学生
-        raws(); //图片旋转
-        get_answer(); //添加答案
-        get_class(); //添加课程
-    }
     //选班
-    $('.rooms').click(function() {
+    $('.rooms').click(function () {
         message_show();
     });
     //选班
-    $('.cover_btn').click(function() {
+    $('.cover_btn').click(function () {
         var n1 = $('#select1').val();
         var n2 = $('#select2').val();
         var str1;
         if (n1 == 0) {
-            str1 = '计算机'+n2+'班';
+            str1 = '计算机' + n2 + '班';
         } else if (n1 == 1) {
-            str1 = '自动化'+n2+'班';
+            str1 = '自动化' + n2 + '班';
         }
         $('.rooms').text(str1);
         message_hide();
@@ -124,7 +121,7 @@
         $('.cover').hide();
         $('.cover2').hide();
     }
-    $('#select1').change(function(e) {
+    $('#select1').change(function (e) {
         var n = $('#select1').val();
         get_select(n);
     });
@@ -132,16 +129,16 @@
     function get_select(n) {
         $('#select2 option').remove();
         if (n == 0) {
-            str2="<option value='1'>计算机1班</option>";
+            str2 = "<option value='1'>计算机1班</option>";
             $('#select2').append(str2);
-            str2="<option value='2'>计算机2班</option>";
+            str2 = "<option value='2'>计算机2班</option>";
             $('#select2').append(str2);
-            str2="<option value='3'>计算机3班</option>";
+            str2 = "<option value='3'>计算机3班</option>";
             $('#select2').append(str2);
         } else if (n == 1) {
-            str2="<option value='1'>自动化1班</option>";
+            str2 = "<option value='1'>自动化1班</option>";
             $('#select2').append(str2);
-            str2="<option value='2'>自动化2班</option>";
+            str2 = "<option value='2'>自动化2班</option>";
             $('#select2').append(str2);
         }
     }
@@ -152,90 +149,114 @@
         var answer3 = 7;
         var answer4 = 8;
         var str = '';
-        str +='<div class="selects"><div class="stu_select">A:</div><div class="stu_select">'+answer1+'</div></div>';
-        str +='<div class="selects"><div class="stu_select">B:</div><div class="stu_select">'+answer2+'</div></div>';
-        str +='<div class="selects"><div class="stu_select">C:</div><div class="stu_select">'+answer3+'</div></div>';
-        str +='<div class="selects"><div class="stu_select">D:</div><div class="stu_select">'+answer4+'</div></div>';
+        str += '<div class="selects"><div class="stu_select">A:</div><div class="stu_select">' + answer1 + '</div></div>';
+        str += '<div class="selects"><div class="stu_select">B:</div><div class="stu_select">' + answer2 + '</div></div>';
+        str += '<div class="selects"><div class="stu_select">C:</div><div class="stu_select">' + answer3 + '</div></div>';
+        str += '<div class="selects"><div class="stu_select">D:</div><div class="stu_select">' + answer4 + '</div></div>';
         $('.cSelect').append(str);
     }
-    //添加学生
-    function get_stus() {
-        var student_id = 1; //学生id
-        var student_status = 1; //学生状态 ,0未登录，1已登录，2已答题
-        var student_ans = 'A'; //学生答案
-        var avatar = 'img/weiai2_no.png'; //头像，默认未登录
-        if (student_status == 1) {
-            avatar = 'img/weiai2_yes.png';
-        } else if (student_status == 2) {
-            avatar = 'img/weiai2_ans.png';
-        }
-        if (student_status != 2) {
-            student_ans = '';
-        }
-        var i=1;
+
+    var seatStatus = {
+        DISCONNECT: 1, CONNECTED: 2, PROCESSING: 3, DONE: 4
+    };
+
+    var seatInfo = {};
+
+    function init_seat() {
         var str = '';
-        for (i=1; i<31; i++) {
-            student_id = i;
-            str +='<div class="cOne"><div class="cBor" onClick="into_student('+student_id+')"><img alt="" src="'+avatar+'"></div><div class="body_answer">'+student_ans+'</div><div class="cNumber">'+ student_id +'</div></div>';
+        for (var i = 1; i < 31; i++) {
+            seatInfo[i] = {status: seatStatus.DISCONNECT};
+            var seat_id = i;
+            var avatar = 'img/weiai2_no.png';
+            var student_ans = '';
+            str += `<div class="cOne" sid="${seat_id}"><div class="cBor" onClick="showStudent(${seat_id})"><img alt="" src="${avatar}"></div><div class="body_answer">${student_ans}</div><div class="cNumber">${seat_id}</div></div>`;
         }
         $('.bodys').append(str);
     }
 
-    //进入学生
-    function into_student(student_id) {
-        alert(student_id);
+    function updateStatus(seat_id) {
+        var avatar = '';
+        console.log(`updating status: ${JSON.stringify(seatInfo[seat_id])}`);
+        switch (seatInfo[seat_id].status) {
+            case seatStatus.DISCONNECT:
+                avatar = 'img/weiai2_no.png';
+                break;
+            case seatStatus.CONNECTED:
+            case seatStatus.PROCESSING:
+                avatar = 'img/weiai2_yes.png';
+                break;
+            case seatStatus.DONE:
+                avatar = 'img/weiai2_ans.png';
+                break;
+        }
+
+        var answer = seatInfo[seat_id] ? seatInfo[seat_id].answer : '';
+
+        document.querySelectorAll('.cOne').forEach(e => {
+            if (e.getAttribute('sid') == seat_id) {
+                $(e).children('.cBor').children('img').attr('src', avatar);
+                $(e).children('.body_answer').text(answer);
+            }
+        });
     }
 
+
+    //进入学生
+    var showStudent = () => {};
+
+    var pushCourse = () => {};
+
     //添加课程
-    function get_class() {
-        var class_id = 1; //课程id
-        var class_title = '点击此处进入课程'; //课程标题
-        var class_rec = '点击此处进入课程，请专注学习，认真上课，好好学习，天天向上...'; //课程描述
-        var i=1;
-        var str = '';
-        for (i=1; i<8; i++) {
-            str +='<li class="als-item"><div class="classOne" onClick="into_class('+class_id+')"><img alt="" src="img/weiai2_class.png"><div class="class_titel">'+ class_title +'</div><div class="class_rec">'+ class_rec +'</div><div class="class_start">启动</div></div></li>';
-        }
+    function init_courses(courses) {
+        let str = '';
+        courses.forEach(course => {
+            str += `<li class="als-item"><div class="classOne" id ="course_${course.id}" onClick="pushCourse('${course.id}')"><img alt="" src="img/weiai2_class.png"><div class="class_title">${course.title}</div><div class="class_rec">${course.desc}</div><div class="class_start">启动</div></div></li>`;
+        });
         $('.als-wrapper').append(str);
     }
-    //进入课程
-    function into_class(class_id) {
-        alert(class_id);
-    }
+
+    //init
+    init_seat(); //添加学生
+    get_answer(); //添加答案
+
 
     //图片旋转
     function raws() {
-        var rot1=0;
-        var rot2=0;
-        var rot3=0;
-        var rot4=0;
-        is_play1 = setInterval(function(){
+        var rot1 = 0;
+        var rot2 = 0;
+        var rot3 = 0;
+        var rot4 = 0;
+        is_play1 = setInterval(function () {
             rot1++;
             rot2--;
-            $('.trans3').attr('style','-webkit-transform:rotate('+rot1+'deg);');
-            $('.trans2').attr('style','-webkit-transform:rotate('+rot2+'deg);');
-            $('.trans3').attr('style','transform:rotate('+rot1+'deg);');
-            $('.trans2').attr('style','transform:rotate('+rot2+'deg);');
+            $('.trans3').attr('style', '-webkit-transform:rotate(' + rot1 + 'deg);');
+            $('.trans2').attr('style', '-webkit-transform:rotate(' + rot2 + 'deg);');
+            $('.trans3').attr('style', 'transform:rotate(' + rot1 + 'deg);');
+            $('.trans2').attr('style', 'transform:rotate(' + rot2 + 'deg);');
         }, 25);
-        is_play2 = setInterval(function(){
+        is_play2 = setInterval(function () {
             rot3++;
             rot4--;
-            $('.trans5').attr('style','-webkit-transform:rotate('+rot3+'deg);');
-            $('.trans4').attr('style','-webkit-transform:rotate('+rot4+'deg);');
-            $('.trans5').attr('style','transform:rotate('+rot3+'deg);');
-            $('.trans4').attr('style','transform:rotate('+rot4+'deg);');
+            $('.trans5').attr('style', '-webkit-transform:rotate(' + rot3 + 'deg);');
+            $('.trans4').attr('style', '-webkit-transform:rotate(' + rot4 + 'deg);');
+            $('.trans5').attr('style', 'transform:rotate(' + rot3 + 'deg);');
+            $('.trans4').attr('style', 'transform:rotate(' + rot4 + 'deg);');
         }, 20);
+
+        window.onload = () => {
+            //als插件，课程左右滑动效果
+            $("#demo1").als({
+                visible_items: 4,
+                scrolling_items: 1,
+                orientation: "horizontal",
+                circular: "no",
+                autoscroll: "no"
+            });
+        };
+
+
     }
-    is_play3 = setInterval(function() {
-        window.clearInterval(is_play3)
-        //als插件，课程左右滑动效果
-        $("#demo1").als({
-            visible_items: 4,
-            scrolling_items: 1,
-            orientation: "horizontal",
-            circular: "no",
-            autoscroll: "no"
-        });
-    },50);
+
+    require('./renderer.js');
 </script>
 </html>

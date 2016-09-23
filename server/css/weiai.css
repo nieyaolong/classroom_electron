@@ -80,7 +80,7 @@
     .centerNav .cClass {position: relative; top:345px; width:100%; height:140px;}
     .centerNav .cClass .classOne {float:left; margin:0px 3%; width:94%;}
     .centerNav .cClass .classOne img {width:100%;}
-    .centerNav .cClass .classOne .class_titel {position: absolute; top:16px; left:22px; width:160px; color:#ffffff; font-size:14px; text-align: left; display:block;white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+    .centerNav .cClass .classOne .class_title {position: absolute; top:16px; left:22px; width:160px; color:#ffffff; font-size:14px; text-align: left; display:block;white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
     .centerNav .cClass .classOne .class_rec {position: absolute; top:44px; left:20px; width:160px; height:60px; color:#ffffff; font-size:14px; text-align: left; display:block; overflow:hidden; text-overflow:ellipsis;}
     .centerNav .cClass .classOne .class_start {position: absolute; top:44px; right:40px; color:#ffffff; font-size:22px;}
     .centerNav .cClass .svg-triangle {width: 30px; height: 30px; margin: auto;}

@@ -7,11 +7,12 @@ const io = require("socket.io")(server);
 
 const port = 9101;
 
+let answers = {};
+
 server.listen(port, () => {
     console.log(`Server listening at port ${port}`);
 });
 
-let answers = {};
 
 io.on('connection', (socket) => {
 
@@ -19,12 +20,14 @@ io.on('connection', (socket) => {
         socket.index = data.index;
         socket.name = data.user;
         socket.edu = data.edu;
+        seatInfo[data.index] = {user:data.user, edu:data.edu, status: seatStatus.CONNECTED};
         console.log(`student login: ${JSON.stringify(data)}`);
-        updateStatus(socket.index, socket.name, true, '已登录')
+        updateStatus(socket.index)
     });
 
     socket.on('course-pushed', ()=> {
-        updateStatus(socket.index, socket.name, true, '课程进行中');
+        seatInfo[socket.index].status = seatStatus.PROCESSING;
+        updateStatus(socket.index);
     });
 
     socket.on('course-done', (data) => {
@@ -34,23 +37,55 @@ io.on('connection', (socket) => {
         } else {
             console.error('BUG:bad answer');
         }
-        console.log(`student ${socket.name} submit answer: ${JSON.stringify(answers)}`);
-        updateStatus(socket.index, socket.name, true, answer ? `答题:${answer}`: '已完成课程')
+        seatInfo[socket.index].status = seatStatus.DONE;
+        seatInfo[socket.index].answer = answer;
+
+        console.log(`student ${socket.name} submit answer: ${answer}, total: ${JSON.stringify(answers)}`);
+        updateStatus(socket.index)
     });
 
     socket.on('disconnect', () => {
         console.log(`student ${socket.index} logout.`);
-        updateStatus(socket.index, socket.index, false, '未连接')
+        seatInfo[socket.index].status = seatStatus.DISCONNECT;
+        updateStatus(socket.index);
     });
 
 });
 
-const Course001Div = document.getElementById('course_001');
-const Course002Div = document.getElementById('course_002');
-
-Course001Div.onclick = () => {
+pushCourse = (index) => {
+    console.log(`pushing course ${index}`);
     io.sockets.emit('start course', {course: 'english', index:'001'});
 };
-Course002Div.onclick = () => {
-    io.sockets.emit('start course', {course: 'biology', index:'skin'});
+
+showStudent = (index) => {
+    console.log(`showing student ${index}`);
+    let statusInfo = '';
+    let studentInfo = seatInfo[index].status == seatStatus.DISCONNECT ? null : `姓名: ${seatInfo[index].user}\n学号:${seatInfo[index].edu}`;
+    let answerInfo = seatInfo[index].status == seatStatus.DONE && seatInfo[index].answer ? seatInfo[index].answer : null;
+    switch (seatInfo[index].status) {
+        case seatStatus.DISCONNECT:
+            statusInfo = '未连接';
+            break;
+        case seatStatus.CONNECTED:
+            statusInfo = '已连接';
+            break;
+        case seatStatus.PROCESSING:
+            statusInfo = '正在进行课程';
+            break;
+        case seatStatus.DONE:
+            statusInfo = '课程结束';
+            break;
+    }
+    let message = `状态: ${statusInfo}\n`;
+    if(studentInfo) {
+        message += studentInfo;
+        if(answerInfo) {
+            message += answerInfo;
+        }
+    }
+    alert(message);
 };
+
+let courseInfo = [{id:'1', title:'英语学习第一课', desc:'大概是飞机坠毁了', questions:[{question:'问题1',answer:'A'}]}];
+
+init_courses(courseInfo, pushCourse);
