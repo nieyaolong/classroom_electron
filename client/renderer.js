@@ -1,26 +1,49 @@
 // This file is required by the index.html file and will
 // be executed in the renderer process for that window.
 // All of the Node.js APIs are available in this process.
+const params = require('url').parse(window.location.href, true).query;
+const cp = require('child_process');
+const path = require('path');
 
+const Config = require('electron-config');
+const config = new Config();
+
+console.log(`config loaded:${config.path}`);
+
+if (!config.get('index')) {
+    config.store = {
+        index: 1,
+        server: 'localhost',
+        server_port: 9101,
+        port: 9100,
+        courses: {
+            english: path.join(__dirname, '../course/course.js')
+        }
+    };
+}
 
 var classState = {
-    PENDING: 0, CONNECTED:1, PROCESSING: 2, DONE: 3
+    PENDING: 0, CONNECTED: 1, PROCESSING: 2, DONE: 3
 };
 
-var params = require('url').parse(window.location.href, true).query;
 
 var setting = {
     user: params['user-name'],
     id: params['edu-id'],
-    server: params['server-addr'],
-    index: params['index']
+    server: `http://${config.get('server')}:${config.get('server_port')}`,
+    index: config.get('index'),
+    port: config.get('port'),
+    courses: config.get('courses')
 };
 
 const ioSocket = require('socket.io-client')(setting.server);
 
+console.log(`current config: ${JSON.stringify(setting)}`);
+
+
 ioSocket.on('connect', ()=> {
     console.log(`connected :${setting.server}`);
-    ioSocket.emit('login', {index:1, user:setting.user, edu:setting.id});
+    ioSocket.emit('login', {index: 1, user: setting.user, edu: setting.id});
     updateMessage(classState.CONNECTED);
 });
 
@@ -76,9 +99,7 @@ function pushCourse(courseInfo) {
 }
 
 function executeCourse(courseName) {
-    const cp = require('child_process');
-    const path = require('path');
-    const child = cp.spawn('electron', [path.join(__dirname, '../course/course.js'), courseName]);
+    const child = cp.spawn('electron', [setting.courses.english]);
     // const child = cp.spawn('/Users/nieyaolong/Code/VI/classroom_electron/package/classroomCourse.app/Contents/MacOS/classroomCourse');
 
     ioSocket.emit('course-pushed');
@@ -91,14 +112,14 @@ function executeCourse(courseName) {
 var answers = [];
 
 function handleServerMessage(message) {
-    if(message.event) {
+    if (message.event) {
         //事件
-        if(message.event === 'done') {
+        if (message.event === 'done') {
             updateMessage(classState.DONE, answers);
             ioSocket.emit('course-done', {answers: answers});
             answers = [];
         }
-    } else if(message.answer) {
+    } else if (message.answer) {
         //答题
         answers.push(message.answer);
     }
@@ -117,8 +138,8 @@ var socketServer = require('net').createServer((c) => {
         handleServerMessage(JSON.parse(m));
     });
 
-    c.write(JSON.stringify({course:currentCourse}));
+    c.write(JSON.stringify({course: currentCourse}));
 });
-socketServer.listen(9100, () => {
+socketServer.listen(setting.port, () => {
     console.error('server bound');
 });
