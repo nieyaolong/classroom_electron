@@ -1,17 +1,38 @@
-<!DOCTYPE html>
+    <!--<p>座位号:</p><input name="index" type="text" value="1"/><br/>-->
+    <!--<p>服务器地址</p><input name="server-addr" type="text" value="http://localhost:9101"/><br/>-->
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>VI Classroom Client</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>威爱教育</title>
+    <link href="css/weiai_login.css" rel="stylesheet" type="text/css">
+    <style type="text/css">
+
+    </style>
 </head>
 <body>
-    <h1>登录</h1>
-    <form action="index.html">
-    <p>姓名:</p><input name="user-name" type="text"/><br/>
-    <p>学号:</p><input name="edu-id" type="text"/><br/>
-    <p>座位号:</p><input name="index" type="text" value="1"/><br/>
-    <p>服务器地址</p><input name="server-addr" type="text" value="http://localhost:9101"/><br/>
-    <button type="submit" >登录</button>
-    </form>
+<div class='main'>
+    <img alt="" class="bg_img" src="img/weiai_login_bg.png">
+    <div class="loginNav">
+        <img alt="" src="img/weiai_login_panel.png">
+        <div class="title">个人虚拟平台登录系统</div>
+        <div class="bodys">
+            <form action="index.html" onsubmit="return submit_check(this)">
+            <div class="set_put">
+                <span>学号&nbsp;&nbsp;&nbsp;</span>
+                <span><input type="text" name="user-name" required="true"></span>
+            </div>
+            <div class="set_put">
+                <span>姓名&nbsp;&nbsp;&nbsp;</span>
+                <span><input type="text" name="edu-id" required="true"></span>
+            </div>
+                <input name="index" type="text" value="1" hidden="true"/>
+                <input name="server-addr" type="text" value="http://localhost:9101" hidden="true"/>
+            <div class="set_put">
+                <button class="submit" type="submit">登录</button>
+            </div>
+        </div>
+    </div>
+</div>
 </body>
 </html>

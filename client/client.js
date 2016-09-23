@@ -13,7 +13,7 @@ const BrowserWindow = electron.BrowserWindow;
 let mainWindow;
 
 function createWindow() {
-    mainWindow = new BrowserWindow({width: 800, height: 600, resize: false});
+    mainWindow = new BrowserWindow({width: 1366, height: 768, resize: false});
 
     mainWindow.loadURL(`file://${__dirname}/login.html`);
 
