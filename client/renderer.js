@@ -17,13 +17,13 @@ if (!config.get('index')) {
         server_port: 9101,
         port: 9100,
         courses: {
-            english: path.join(__dirname, '../course/course.js')
+            english: ''
         }
     };
 }
 
 var classState = {
-    PENDING: 0, CONNECTED: 1, PROCESSING: 2, DONE: 3
+    PENDING: 0, CONNECTED: 1, PROCESSING: 2, DONE: 3, FAILED:4
 };
 
 
@@ -33,7 +33,6 @@ var setting = {
     server: `http://${config.get('server')}:${config.get('server_port')}`,
     index: config.get('index'),
     port: config.get('port'),
-    courses: config.get('courses')
 };
 
 const ioSocket = require('socket.io-client')(setting.server);
@@ -68,8 +67,11 @@ function updateMessage(state, data) {
         case classState.DONE:
             message = `课程结束, 答题结果: ${data}`;
             break;
+        case classState.FAILED:
+            message = `出错: ${data}`;
+            break;
         default:
-            message = state;
+            message = `未知状态:state`;
     }
     let p = document.querySelector(".message");
     p.innerHTML = message;
@@ -93,20 +95,45 @@ function pushCourse(courseInfo) {
 
     updateMessage(classState.PROCESSING, courseName + courseIndex);
 
-    currentCourse = `${courseName}:${courseIndex}`;
-    executeCourse(currentCourse);
-    console.error(`pushed course: ${JSON.stringify(courseInfo)}`);
+    let result = false;
+    if(currentCourse) {
+        console.log('no reentrant');
+    } else {
+        currentCourse = courseInfo;
+        result = executeCourse(courseName);
+        console.log(`pushed course: ${JSON.stringify(courseInfo)}: ${result}`);
+    }
+    ioSocket.emit(result ? 'course-pushed': 'course-failed');
 }
 
+//return if success;
 function executeCourse(courseName) {
-    const child = cp.spawn('electron', [setting.courses.english]);
-    // const child = cp.spawn('/Users/nieyaolong/Code/VI/classroom_electron/package/classroomCourse.app/Contents/MacOS/classroomCourse');
+    let exe = config.get(`courses.${courseName}`);
+    if(!exe || exe == '') {
+        console.error('missing target exe.');
+        updateMessage(classState.FAILED, '文件不存在');
+        return false;
+    }
+    console.log(exe);
+    try {
+        const child = cp.spawn(exe);
 
-    ioSocket.emit('course-pushed');
+        child.on('exit', (m) => {
+            console.log(`course ended: ${m}`);
+            currentCourse = null;
+        });
+        child.on('error', (e) => {
+            console.error(e);
+            currentCourse = null;
+            ioSocket.emit('course-failed');
+            updateMessage(classState.FAILED, e.message);
+        });
+        return true;
+    } catch (error) {
+        console.error(error);
+        return false;
+    }
 
-    child.on('exit', (m) => {
-        console.error(`course ended: ${m}`);
-    })
 }
 
 var answers = [];
@@ -127,19 +154,19 @@ function handleServerMessage(message) {
 
 
 var socketServer = require('net').createServer((c) => {
-    console.error('client connected');
+    console.log('client connected');
 
     c.on('end', () => {
-        console.error('client disconnected');
+        console.log('client disconnected');
     });
 
     c.on('data', (m) => {
-        console.error(`client data: ${m}`);
+        console.log(`client data: ${m}`);
         handleServerMessage(JSON.parse(m));
     });
 
     c.write(JSON.stringify({course: currentCourse}));
 });
 socketServer.listen(setting.port, () => {
-    console.error('server bound');
+    console.log('server bound');
 });

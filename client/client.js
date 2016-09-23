@@ -1,21 +1,27 @@
+"use strict";
 const electron = require('electron')
 // Module to control application life.
 const app = electron.app;
 const Tray = electron.Tray;
 const Menu = electron.Menu;
 const globalShortcut = electron.globalShortcut;
-
+const Dialog = electron.dialog;
 // Module to create native browser window.
 const BrowserWindow = electron.BrowserWindow;
+
+const path = require('path');
+const Config = require('electron-config');
+const config = new Config();
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let mainWindow;
 
 function createWindow() {
-    mainWindow = new BrowserWindow({width: 1366, height: 768, resize: false});
+    mainWindow = new BrowserWindow({width: 1366, height: 768, resize:false, frame:(process.platform != 'win32')});
 
     mainWindow.loadURL(`file://${__dirname}/login.html`);
+    mainWindow.setMenu(null);
 
     globalShortcut.register('alt+d', function () {
         mainWindow.webContents.openDevTools()
@@ -61,11 +67,20 @@ app.on('activate', function () {
 if (process.platform == 'win32') {
     let tray = null;
     app.on('ready', () => {
-        tray = new Tray('img/classroom.ico');
+        tray = new Tray(path.join(__dirname, '/img/classroom.ico'));
         const contextMenu = Menu.buildFromTemplate([
             {
                 label: '登出', type: 'normal', click: ()=> {
                 mainWindow.loadURL(`file://${__dirname}/login.html`)
+            }
+            },
+            {
+                label: '配置路径', type: 'normal', click: ()=> {
+                    Dialog.showOpenDialog({properties: ['openFile'], filters: [{name:'EXE', extensions:['exe']}]}, (fileName)=> {
+                        if(fileName && fileName.length > 0) {
+                            config.set('courses.english', fileName[0]);
+                        }
+                    })
             }
             },
             {
