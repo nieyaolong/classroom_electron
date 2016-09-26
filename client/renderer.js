@@ -1,6 +1,9 @@
 // This file is required by the index.html file and will
 // be executed in the renderer process for that window.
 // All of the Node.js APIs are available in this process.
+const ipcRenderer = require('electron').ipcRenderer;
+ipcRenderer.send('login');
+
 const params = require('url').parse(window.location.href, true).query;
 const cp = require('child_process');
 const path = require('path');
@@ -73,16 +76,8 @@ function updateMessage(state, data) {
         default:
             message = `未知状态:state`;
     }
-    let p = document.querySelector(".message");
-    p.innerHTML = message;
+    new Notification(message, {icon: 'img/classroom.ico'})
 }
-
-//init
-let nameText = document.querySelector(".user-name");
-nameText.innerHTML = setting.user;
-
-let idText = document.querySelector(".user-id");
-idText.innerHTML = setting.id;
 
 updateMessage(classState.PENDING);
 

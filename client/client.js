@@ -8,6 +8,7 @@ const globalShortcut = electron.globalShortcut;
 const Dialog = electron.dialog;
 // Module to create native browser window.
 const BrowserWindow = electron.BrowserWindow;
+const ipcMain = electron.ipcMain;
 
 const path = require('path');
 const Config = require('electron-config');
@@ -64,16 +65,14 @@ app.on('activate', function () {
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and require them here.
 
+let tray = null;
+
 if (process.platform == 'win32') {
-    let tray = null;
     app.on('ready', () => {
         tray = new Tray(path.join(__dirname, '/img/classroom.ico'));
         const contextMenu = Menu.buildFromTemplate([
             {
-                label: '登出', type: 'normal', click: ()=> {
-                mainWindow.loadURL(`file://${__dirname}/login.html`)
-            }
-            },
+                label: '登出', type: 'normal', click: logout},
             {
                 label: '配置路径', type: 'normal', click: ()=> {
                     Dialog.showOpenDialog({properties: ['openFile'], filters: [{name:'EXE', extensions:['exe']}]}, (fileName)=> {
@@ -92,4 +91,15 @@ if (process.platform == 'win32') {
         tray.setToolTip('威爱教室客户端');
         tray.setContextMenu(contextMenu);
     });
+
+    ipcMain.on('login', (event, arg) => {
+        mainWindow.hide();
+    });
+
+    ipcMain.on('logout', logout);
+}
+
+function logout() {
+    mainWindow.loadURL(`file://${__dirname}/login.html`);
+    mainWindow.show();
 }
