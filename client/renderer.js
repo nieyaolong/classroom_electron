@@ -15,9 +15,9 @@ const config = new Config();
 
 console.log(`config loaded:${config.path}`);
 
-if (true) {
+if (!config.get('index')) {
     config.store = {
-        index: Math.floor(Math.random() * 30),
+        index: (Math.floor(Math.random() * 30) + 1),
         server: 'localhost',
         server_port: 9101,
         port: 9100,
