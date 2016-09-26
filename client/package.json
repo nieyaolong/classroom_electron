@@ -1,13 +1,10 @@
 {
-  "name": "classroom-client",
-  "version": "0.1.0",
+  "name": "classroomClient",
+  "version": "1.0.0",
   "main": "client.js",
-  "private": true,
-  "scripts": {
-    "start": "electron ."
-  },
   "dependencies": {
-    "socket.io-client": "^1.4.8",
-    "electron-config": "^0.2.1"
+    "electron-config": "^0.2.1",
+    "electron-squirrel-startup": "^1.0.0",
+    "socket.io-client": "^1.4.8"
   }
 }

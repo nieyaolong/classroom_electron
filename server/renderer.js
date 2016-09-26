@@ -89,7 +89,7 @@ showStudent = (index) => {
 };
 
 let courseInfo = [
-    {id:'1', title:'英语学习第一课', desc:'大概是飞机坠毁了', questions:[{question:'问题1',answer:'A'}]},
+    {id:'1', title:'英语 第三章 坠机', desc:'课后题目：Who was driving the plane before the crash?(A)', questions:[{question:'问题1',answer:'A'}]},
 ];
 
 console.log('init_course');
