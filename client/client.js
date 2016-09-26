@@ -74,7 +74,7 @@ if (process.platform == 'win32') {
             {
                 label: '登出', type: 'normal', click: logout},
             {
-                label: '配置路径', type: 'normal', click: ()=> {
+                label: '配置课程路径', type: 'normal', click: ()=> {
                     Dialog.showOpenDialog({properties: ['openFile'], filters: [{name:'EXE', extensions:['exe']}]}, (fileName)=> {
                         if(fileName && fileName.length > 0) {
                             config.set('courses.english', fileName[0]);

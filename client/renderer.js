@@ -1,6 +1,8 @@
 // This file is required by the index.html file and will
 // be executed in the renderer process for that window.
 // All of the Node.js APIs are available in this process.
+"use strict";
+
 const ipcRenderer = require('electron').ipcRenderer;
 ipcRenderer.send('login');
 
@@ -46,7 +48,7 @@ console.log(`current config: ${JSON.stringify(setting)}`);
 ioSocket.on('connect', ()=> {
     console.log(`connected :${setting.server}`);
     ioSocket.emit('login', {index: 1, user: setting.user, edu: setting.id});
-    updateMessage(classState.CONNECTED);
+    updateStatus(classState.CONNECTED);
 });
 
 ioSocket.on('disconnect', () => {
@@ -55,7 +57,10 @@ ioSocket.on('disconnect', () => {
 
 ioSocket.on('start course', pushCourse);
 
-function updateMessage(state, data) {
+let currentStatus = classState.PENDING;
+
+function updateStatus(state, data) {
+    currentStatus = state;
     let message;
     switch (state) {
         case classState.PENDING:
@@ -76,10 +81,23 @@ function updateMessage(state, data) {
         default:
             message = `未知状态:state`;
     }
+    if(state == classState.PENDING) {
+        //等待1秒钟链接
+        setTimeout(() => {
+            if(currentStatus == classState.PENDING) {
+                notic(message);
+            }
+        }, 10000);
+    } else {
+        notic(message);
+    }
+}
+
+function notic(message) {
     new Notification(message, {icon: 'img/classroom.ico'})
 }
 
-updateMessage(classState.PENDING);
+updateStatus(classState.PENDING);
 
 let currentCourse = null;
 
@@ -88,7 +106,7 @@ function pushCourse(courseInfo) {
     let courseName = courseInfo.course;
     let courseIndex = courseInfo.index;
 
-    updateMessage(classState.PROCESSING, courseName + courseIndex);
+    updateStatus(classState.PROCESSING, courseName + courseIndex);
 
     let result = false;
     if(currentCourse) {
@@ -106,7 +124,7 @@ function executeCourse(courseName) {
     let exe = config.get(`courses.${courseName}`);
     if(!exe || exe == '') {
         console.error('missing target exe.');
-        updateMessage(classState.FAILED, '文件不存在');
+        updateStatus(classState.FAILED, '文件不存在');
         return false;
     }
     console.log(exe);
@@ -121,7 +139,7 @@ function executeCourse(courseName) {
             console.error(e);
             currentCourse = null;
             ioSocket.emit('course-failed');
-            updateMessage(classState.FAILED, e.message);
+            updateStatus(classState.FAILED, e.message);
         });
         return true;
     } catch (error) {
@@ -137,7 +155,7 @@ function handleServerMessage(message) {
     if (message.event) {
         //事件
         if (message.event === 'done') {
-            updateMessage(classState.DONE, answers);
+            updateStatus(classState.DONE, answers);
             ioSocket.emit('course-done', {answers: answers});
             answers = [];
         }
