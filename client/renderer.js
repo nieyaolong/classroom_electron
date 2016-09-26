@@ -15,9 +15,9 @@ const config = new Config();
 
 console.log(`config loaded:${config.path}`);
 
-if (!config.get('index')) {
+if (true) {
     config.store = {
-        index: 1,
+        index: Math.floor(Math.random() * 30),
         server: 'localhost',
         server_port: 9101,
         port: 9100,
@@ -47,7 +47,7 @@ console.log(`current config: ${JSON.stringify(setting)}`);
 
 ioSocket.on('connect', ()=> {
     console.log(`connected :${setting.server}`);
-    ioSocket.emit('login', {index: 1, user: setting.user, edu: setting.id});
+    ioSocket.emit('login', {index: setting.index, user: setting.user, edu: setting.id});
     updateStatus(classState.CONNECTED);
 });
 
@@ -70,7 +70,7 @@ function updateStatus(state, data) {
             message = "已连接服务器,请等待老师开始课程";
             break;
         case classState.PROCESSING:
-            message = `请戴上头盔开始课程 ${data}`;
+            message = `请戴上头盔开始课程`;
             break;
         case classState.DONE:
             message = `课程结束, 答题结果: ${data}`;
@@ -104,9 +104,6 @@ let currentCourse = null;
 function pushCourse(courseInfo) {
 
     let courseName = courseInfo.course;
-    let courseIndex = courseInfo.index;
-
-    updateStatus(classState.PROCESSING, courseName + courseIndex);
 
     let result = false;
     if(currentCourse) {
@@ -116,7 +113,12 @@ function pushCourse(courseInfo) {
         result = executeCourse(courseName);
         console.log(`pushed course: ${JSON.stringify(courseInfo)}: ${result}`);
     }
-    ioSocket.emit(result ? 'course-pushed': 'course-failed');
+    if(result) {
+        updateStatus(classState.PROCESSING);
+        ioSocket.emit('course-pushed');
+    }else {
+        ioSocket.emit('course-failed');
+    }
 }
 
 //return if success;
@@ -124,7 +126,8 @@ function executeCourse(courseName) {
     let exe = config.get(`courses.${courseName}`);
     if(!exe || exe == '') {
         console.error('missing target exe.');
-        updateStatus(classState.FAILED, '文件不存在');
+        updateStatus(classState.FAILED, '课程文件不存在，请在通知栏图标处右键配置课程文件位置');
+        currentCourse = null;
         return false;
     }
     console.log(exe);
