@@ -75,15 +75,15 @@ if (process.platform == 'win32') {
         const contextMenu = Menu.buildFromTemplate([
             {
                 label: '登出', type: 'normal', click: logout},
-            {
-                label: '配置课程路径', type: 'normal', click: ()=> {
-                    Dialog.showOpenDialog({properties: ['openFile'], filters: [{name:'EXE', extensions:['exe']}]}, (fileName)=> {
-                        if(fileName && fileName.length > 0) {
-                            config.set('courses.english', fileName[0]);
-                        }
-                    })
-            }
-            },
+            // {
+            //     label: '配置课程路径', type: 'normal', click: ()=> {
+            //         Dialog.showOpenDialog({properties: ['openFile'], filters: [{name:'EXE', extensions:['exe']}]}, (fileName)=> {
+            //             if(fileName && fileName.length > 0) {
+            //                 config.set('courses.english', fileName[0]);
+            //             }
+            //         })
+            // }
+            // },
             {
                 label: '退出', type: 'normal', click: ()=> {
                 app.exit(0)
@@ -95,6 +95,7 @@ if (process.platform == 'win32') {
     });
 
     ipcMain.on('login', (event, arg) => {
+        tray.setToolTip(`威爱教室客户端\n学号：${arg.edu}\n姓名：${arg.name}`);
         mainWindow.hide();
     });
 

@@ -4,26 +4,25 @@
 "use strict";
 
 const ipcRenderer = require('electron').ipcRenderer;
-ipcRenderer.send('login');
 
 const params = require('url').parse(window.location.href, true).query;
 const cp = require('child_process');
 const path = require('path');
+
+const coursesInfo = require('./courses/index.json');
 
 const Config = require('electron-config');
 const config = new Config();
 
 console.log(`config loaded:${config.path}`);
 
-if (!config.get('index')) {
+if (true) {
     config.store = {
         index: (Math.floor(Math.random() * 30) + 1),
         server: 'localhost',
         server_port: 9101,
         port: 9100,
-        courses: {
-            english: ''
-        }
+        courses: coursesInfo
     };
 }
 
@@ -39,6 +38,8 @@ var setting = {
     index: config.get('index'),
     port: config.get('port'),
 };
+
+ipcRenderer.send('login',{edu: setting.id, name: setting.user});
 
 const ioSocket = require('socket.io-client')(setting.server);
 
@@ -82,12 +83,12 @@ function updateStatus(state, data) {
             message = `未知状态:state`;
     }
     if(state == classState.PENDING) {
-        //等待1秒钟链接
+        //等待5秒钟链接
         setTimeout(() => {
             if(currentStatus == classState.PENDING) {
                 notic(message);
             }
-        }, 10000);
+        }, 5000);
     } else {
         notic(message);
     }
@@ -126,10 +127,12 @@ function executeCourse(courseName) {
     let exe = config.get(`courses.${courseName}`);
     if(!exe || exe == '') {
         console.error('missing target exe.');
-        updateStatus(classState.FAILED, '课程文件不存在，请在通知栏图标处右键配置课程文件位置');
+        updateStatus(classState.FAILED, '课程文件不存在');
         currentCourse = null;
         return false;
     }
+
+    exe = path.join(__dirname, '/courses/', exe);
     console.log(exe);
     try {
         const child = cp.spawn(exe);
