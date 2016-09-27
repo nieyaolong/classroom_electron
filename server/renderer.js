@@ -1,6 +1,7 @@
 // This file is required by the index.html file and will
 // be executed in the renderer process for that window.
 // All of the Node.js APIs are available in this process.
+"use strict";
 
 const server = require("http").createServer();
 const io = require("socket.io")(server);
@@ -54,11 +55,6 @@ io.on('connection', (socket) => {
 
 });
 
-pushCourse = (index) => {
-    console.log(`pushing course ${index}`);
-    io.sockets.emit('start course', {course: 'english', index:'001'});
-};
-
 showStudent = (index) => {
     console.log(`showing student ${index}`);
     let statusInfo = '';
@@ -89,8 +85,26 @@ showStudent = (index) => {
 };
 
 let courseInfo = [
-    {id:'1', title:'英语 第三章 坠机', desc:'课后题目：Who was driving the plane before the crash?(A)', questions:[{question:'问题1',answer:'A'}]},
+    {id:'1', title:'英语 第三章 坠机', desc:'课后题目：Who was driving the plane before the crash?(A)', name:'english', index:'001'},
+    {id:'2', title:'生物', desc:'皮肤', name:'skin'},
 ];
+
+pushCourse = (index) => {
+    console.log(`pushing course ${index}`);
+    let c = null;
+    courseInfo.forEach(course => {
+        if(course.id === index) {
+            c = course;
+        }
+    });
+    if(!c || !c.name) {
+        alert('课程信息有误');
+    } else {
+        io.sockets.emit('start course', {course: c.name, index:c.index});
+        alert(`开始课程 ${c.title}`);
+    }
+};
+
 
 console.log('init_course');
 init_courses(courseInfo, pushCourse);
