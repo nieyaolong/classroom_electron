@@ -1,4 +1,5 @@
 {
-  "english":"CambridgeDemo/cambridge.exe",
-  "skin":"SkinScience_v1/SkinScience.exe"
+  "english":"Cambridge_short/cambridge_short.exe",
+  "skin":"SkinScience/SkinScience.exe",
+  "zunyi":"zunyi/ZunYi.exe"
 }

@@ -16,13 +16,31 @@ const config = new Config();
 
 console.log(`config loaded:${config.path}`);
 
+const os = require('os');
+function getIndexFromIPAddress() {
+    let ipAddress = null;
+    let loInfo = os.networkInterfaces();
+    for(let prop in loInfo) {
+        if (loInfo.hasOwnProperty(prop)) {
+            loInfo[prop].forEach(lo => {
+                if (lo.family == 'IPv4' && lo.internal == false) {
+                    ipAddress = lo.address;
+                }
+            });
+        }
+    }
+    let result = ipAddress ? Number(ipAddress.split('.')[3]) : 0;
+    notic(`自动获取座位编号：${result ? result : '失败，请修改配置文件'}`);
+    return result;
+}
+
 if (!config.get('index')) {
     config.store = {
-        index: (Math.floor(Math.random() * 30) + 1),
-        server: 'localhost',
+        // index: (Math.floor(Math.random() * 30) + 1),
+        index: getIndexFromIPAddress(),
+        server: '192.168.1.98',
         server_port: 9101,
         port: 9100,
-        courses: coursesInfo
     };
 }
 
@@ -37,6 +55,7 @@ var setting = {
     server: `http://${config.get('server')}:${config.get('server_port')}`,
     index: config.get('index'),
     port: config.get('port'),
+    courses : coursesInfo
 };
 
 ipcRenderer.send('login',{edu: setting.id, name: setting.user});
@@ -124,7 +143,7 @@ function pushCourse(courseInfo) {
 
 //return if success;
 function executeCourse(courseName) {
-    let exe = config.get(`courses.${courseName}`);
+    let exe = setting.courses[courseName];
     if(!exe || exe == '') {
         console.error('missing target exe.');
         updateStatus(classState.FAILED, '课程文件不存在');
