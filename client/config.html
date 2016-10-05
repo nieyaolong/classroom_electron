@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>VI Classroom Client Config</title>
+</head>
+<body>
+<script>
+    var save_config = null;
+    var show_dialog = null;
+</script>
+<form name="configForm" onsubmit="return save_config();">
+    <p>座位编号：
+        <input type="text" name="index" required="true"/>
+    </p>
+    <p>老师电脑的IP地址：
+        <input type="text" name="server" required="true"/>
+    </p>
+    <p>英语课程文件：
+        <input type="button" onclick="show_dialog('english');" value="选择文件"/>
+    </p>
+    <p>皮肤课程文件：
+        <input type="button" onclick="show_dialog('skin');" value="选择文件"/>
+    </p>
+    <p>遵义课程文件：
+        <input type="button" onclick="show_dialog('zunyi');" value="选择文件"/>
+    </p>
+
+    <input type="submit" value="保存"/>
+</form>
+
+</body>
+<script>
+    // You can also require other files to run in this process
+    require("./config")
+</script>
+</html>

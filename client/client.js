@@ -1,5 +1,5 @@
 "use strict";
-if(require('electron-squirrel-startup')) return;
+if (require('electron-squirrel-startup')) return;
 
 const electron = require('electron');
 // Module to control application life.
@@ -21,7 +21,7 @@ const config = new Config();
 let mainWindow;
 
 function createWindow() {
-    mainWindow = new BrowserWindow({width: 1366, height: 768, resize:false, frame:(process.platform != 'win32')});
+    mainWindow = new BrowserWindow({width: 1366, height: 768, resize: false, frame: (process.platform != 'win32')});
 
     mainWindow.loadURL(`file://${__dirname}/login.html`);
     mainWindow.setMenu(null);
@@ -68,22 +68,17 @@ app.on('activate', function () {
 // code. You can also put them in separate files and require them here.
 
 let tray = null;
-
+let configwindow = null;
 if (process.platform == 'win32') {
     app.on('ready', () => {
         tray = new Tray(path.join(__dirname, '/img/classroom.ico'));
         const contextMenu = Menu.buildFromTemplate([
             {
-                label: '登出', type: 'normal', click: logout},
-            // {
-            //     label: '配置课程路径', type: 'normal', click: ()=> {
-            //         Dialog.showOpenDialog({properties: ['openFile'], filters: [{name:'EXE', extensions:['exe']}]}, (fileName)=> {
-            //             if(fileName && fileName.length > 0) {
-            //                 config.set('courses.english', fileName[0]);
-            //             }
-            //         })
-            // }
-            // },
+                label: '登出', type: 'normal', click: logout
+            },
+            {
+                label: '配置', type: 'normal', click: showConfigWindow
+            },
             {
                 label: '退出', type: 'normal', click: ()=> {
                 app.exit(0)
@@ -92,17 +87,53 @@ if (process.platform == 'win32') {
         ]);
         tray.setToolTip('威爱教室客户端');
         tray.setContextMenu(contextMenu);
-    });
 
-    ipcMain.on('login', (event, arg) => {
-        tray.setToolTip(`威爱教室客户端\n学号：${arg.edu}\n姓名：${arg.name}`);
-        mainWindow.hide();
+        //show config window if needed
+        if (!config.get('index')) {
+            showConfigWindow();
+        }
     });
+}
 
-    ipcMain.on('logout', logout);
+ipcMain.on('login', (event, arg) => {
+    tray.setToolTip(`威爱教室客户端\n学号：${arg.edu}\n姓名：${arg.name}`);
+    mainWindow.hide();
+});
+
+ipcMain.on('logout', logout);
+
+ipcMain.on('config-save', (event, arg) => {
+    console.log(arg);
+    config.store = {
+        index: arg.index,
+        server: arg.server,
+        server_port: 9101,
+        port: 9100,
+    };
+    if (configwindow) {
+        configwindow.close();
+    }
+});
+
+function showConfigWindow() {
+    configwindow = new BrowserWindow({width: 400, height: 300, resize: false});
+    configwindow.loadURL(`file://${__dirname}/config.html`);
+    configwindow.setMenu(null);
 }
 
 function logout() {
     mainWindow.loadURL(`file://${__dirname}/login.html`);
     mainWindow.show();
 }
+
+ipcMain.on('dialog-show', (event, arg) => {
+    let courseConfig = `courses.${arg.name}`;
+    Dialog.showOpenDialog({properties: ['openFile'],
+        filters:[{name: '课件执行文件', extensions: ['exe']}],
+        defaultPath: config.get(courseConfig)
+    }, (fileName)=> {
+        if (fileName && fileName.length > 0) {
+            config.set(courseConfig, fileName[0]);
+        }
+    });
+});

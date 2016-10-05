@@ -8,9 +8,6 @@ const ipcRenderer = require('electron').ipcRenderer;
 const params = require('url').parse(window.location.href, true).query;
 const cp = require('child_process');
 const path = require('path');
-
-const coursesInfo = require('./courses/index.json');
-
 const Config = require('electron-config');
 const config = new Config();
 
@@ -34,20 +31,19 @@ function getIndexFromIPAddress() {
     return result;
 }
 
-if (!config.get('index')) {
-    config.store = {
-        // index: (Math.floor(Math.random() * 30) + 1),
-        index: getIndexFromIPAddress(),
-        server: '192.168.1.98',
-        server_port: 9101,
-        port: 9100,
-    };
-}
-
 var classState = {
     PENDING: 0, CONNECTED: 1, PROCESSING: 2, DONE: 3, FAILED:4
 };
 
+if(!config.get('index')) {
+    notic('请正确配置座位编号');
+    ipcRenderer.send('logout');
+} else if(!config.get('server')) {
+    notic('请正确配置教师端ip地址');
+    ipcRenderer.send('logout');
+} else {
+    ipcRenderer.send('login',{edu: params['edu-id'], name: params['user-name']});
+}
 
 var setting = {
     user: params['user-name'],
@@ -55,10 +51,8 @@ var setting = {
     server: `http://${config.get('server')}:${config.get('server_port')}`,
     index: config.get('index'),
     port: config.get('port'),
-    courses : coursesInfo
 };
 
-ipcRenderer.send('login',{edu: setting.id, name: setting.user});
 
 const ioSocket = require('socket.io-client')(setting.server);
 
@@ -143,16 +137,14 @@ function pushCourse(courseInfo) {
 
 //return if success;
 function executeCourse(courseName) {
-    let exe = setting.courses[courseName];
+    let exe = config.get(`courses.${courseName}`);
     if(!exe || exe == '') {
         console.error('missing target exe.');
-        updateStatus(classState.FAILED, '课程文件不存在');
+        updateStatus(classState.FAILED, '请正确配置课程文件位置');
         currentCourse = null;
         return false;
     }
 
-    exe = path.join(__dirname, '/courses/', exe);
-    console.log(exe);
     try {
         const child = cp.spawn(exe);
 
