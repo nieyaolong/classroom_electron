@@ -42,12 +42,12 @@ if(!config.get('index')) {
     notic('请正确配置教师端ip地址');
     ipcRenderer.send('logout');
 } else {
-    ipcRenderer.send('login',{edu: params['edu-id'], name: params['user-name']});
+    ipcRenderer.send('login',{edu: params['edu_id'], name: params['user_name']});
 }
 
 var setting = {
-    user: params['user-name'],
-    id: params['edu-id'],
+    user: params['user_name'],
+    id: params['edu_id'],
     server: `http://${config.get('server')}:${config.get('server_port')}`,
     index: config.get('index'),
     port: config.get('port'),

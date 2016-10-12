@@ -1,36 +1,44 @@
-    <!--<p>座位号:</p><input name="index" type="text" value="1"/><br/>-->
-    <!--<p>服务器地址</p><input name="server-addr" type="text" value="http://localhost:9101"/><br/>-->
+<!--<p>座位号:</p><input name="index" type="text" value="1"/><br/>-->
+<!--<p>服务器地址</p><input name="server-addr" type="text" value="http://localhost:9101"/><br/>-->
 <html lang="en">
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>威爱教育</title>
+    <title>威爱教育虚拟现实教学云平台</title>
     <link href="css/weiai_login.css" rel="stylesheet" type="text/css">
     <style type="text/css">
 
     </style>
 </head>
 <body>
+<script>
+    function guest_login() {
+        loginForm.user_name.value = '访客';
+        loginForm.edu_id.value = '000';
+    }
+</script>
 <div class='main'>
     <img alt="" class="bg_img" src="img/weiai_login_bg.png">
     <div class="loginNav">
         <img alt="" src="img/weiai_login_panel.png">
-        <div class="title">个人虚拟平台登录系统</div>
+        <div class="title">威爱教育虚拟现实教学云平台</div>
         <div class="bodys">
-            <form action="index.html" onsubmit="return submit_check(this)">
-            <div class="set_put">
-                <span>姓名&nbsp;&nbsp;&nbsp;</span>
-                <span><input type="text" name="user-name" required="true"></span>
-            </div>
-            <div class="set_put">
-                <span>学号&nbsp;&nbsp;&nbsp;</span>
-                <span><input type="text" name="edu-id" required="true"></span>
-            </div>
-                <input name="index" type="text" value="1" hidden="true"/>
-                <input name="server-addr" type="text" value="http://localhost:9101" hidden="true"/>
-            <div class="set_put">
-                <button class="submit" type="submit">登录</button>
-            </div>
+            <form name="loginForm" action="index.html">
+                <div class="set_put">
+                    <span>姓名&nbsp;&nbsp;&nbsp;</span>
+                    <span><input type="text" name="user_name" required="true"></span>
+                </div>
+                <div class="set_put">
+                    <span>学号&nbsp;&nbsp;&nbsp;</span>
+                    <span><input type="text" name="edu_id" required="true"></span>
+                </div>
+                <div class="set_put">
+                    <button class="submit" type="submit">登录</button>
+                </div>
+                <div class="set_put">
+                    <button class="submit" type="submit" onclick="return guest_login();">访客登录</button>
+                </div>
+            </form>
         </div>
     </div>
 </div>

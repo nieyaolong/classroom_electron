@@ -85,7 +85,7 @@ if (process.platform == 'win32') {
             }
             }
         ]);
-        tray.setToolTip('威爱教室客户端');
+        tray.setToolTip('威爱教育虚拟现实教学云平台');
         tray.setContextMenu(contextMenu);
 
         //show config window if needed
@@ -96,7 +96,7 @@ if (process.platform == 'win32') {
 }
 
 ipcMain.on('login', (event, arg) => {
-    tray.setToolTip(`威爱教室客户端\n学号：${arg.edu}\n姓名：${arg.name}`);
+    tray.setToolTip(`威爱教育虚拟现实教学云平台\n学号：${arg.edu}\n姓名：${arg.name}`);
     mainWindow.hide();
 });
 
@@ -116,7 +116,7 @@ ipcMain.on('config-save', (event, arg) => {
 });
 
 function showConfigWindow() {
-    configwindow = new BrowserWindow({width: 400, height: 300, resize: false});
+    configwindow = new BrowserWindow({width: 400, height: 500, resize: false});
     configwindow.loadURL(`file://${__dirname}/config.html`);
     configwindow.setMenu(null);
 }

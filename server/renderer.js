@@ -84,12 +84,7 @@ showStudent = (index) => {
     alert(message);
 };
 
-let courseInfo = [
-    {id:'1', title:'英语剑桥小说馆 第三章 坠机', desc:'Who was driving the plane before the crash?(A:Man, B:Woman, C:Child)', name:'english', index:'001'},
-    {id:'2', title:'自然科学系列课程', desc:'皮肤探秘', name:'skin'},
-    {id:'2', title:'思想政治系列课程', desc:'遵义会议', name:'zunyi'},
-];
-
+const courseInfo = require("./courses.json");
 pushCourse = (index) => {
     console.log(`pushing course ${index}`);
     let c = null;
