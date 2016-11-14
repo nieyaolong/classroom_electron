@@ -6,6 +6,8 @@
 const server = require("http").createServer();
 const io = require("socket.io")(server);
 
+var video = require("./video");
+
 const port = 9101;
 
 server.listen(port, () => {
@@ -14,6 +16,8 @@ server.listen(port, () => {
 
 
 io.on('connection', (socket) => {
+
+    video.createOverviewConnection(socket);
 
     socket.on('login', (data) => {
         socket.index = data.index;

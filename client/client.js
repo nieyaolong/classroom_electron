@@ -26,6 +26,9 @@ function createWindow() {
     mainWindow.loadURL(`file://${__dirname}/login.html`);
     mainWindow.setMenu(null);
 
+    mainWindow.webContents.openDevTools()
+
+
     globalShortcut.register('alt+d', function () {
         mainWindow.webContents.openDevTools()
     });

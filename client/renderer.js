@@ -1,7 +1,6 @@
-// This file is required by the index.html file and will
-// be executed in the renderer process for that window.
-// All of the Node.js APIs are available in this process.
 "use strict";
+
+var video = require('./video.js');
 
 const ipcRenderer = require('electron').ipcRenderer;
 
@@ -63,6 +62,9 @@ ioSocket.on('connect', ()=> {
     console.log(`connected :${setting.server}`);
     ioSocket.emit('login', {index: setting.index, user: setting.user, edu: setting.id});
     updateStatus(classState.CONNECTED);
+
+    //todo tmp
+    video.createOverviewConnection(ioSocket);
 });
 
 ioSocket.on('disconnect', () => {
@@ -146,18 +148,21 @@ function executeCourse(courseName) {
     }
 
     try {
-        const child = cp.spawn(exe);
+        // const child = cp.spawn(exe);
+        //
+        // child.on('exit', (m) => {
+        //     console.log(`course ended: ${m}`);
+        //     currentCourse = null;
+        // });
+        // child.on('error', (e) => {
+        //     console.error(e);
+        //     currentCourse = null;
+        //     ioSocket.emit('course-failed');
+        //     updateStatus(classState.FAILED, e.message);
+        // });
+        //todo tmp
+        video.startPushOverViewStream(0, ioSocket, ()=> {console.log('push success')}, (err) => {console.error(err)})
 
-        child.on('exit', (m) => {
-            console.log(`course ended: ${m}`);
-            currentCourse = null;
-        });
-        child.on('error', (e) => {
-            console.error(e);
-            currentCourse = null;
-            ioSocket.emit('course-failed');
-            updateStatus(classState.FAILED, e.message);
-        });
         return true;
     } catch (error) {
         console.error(error);

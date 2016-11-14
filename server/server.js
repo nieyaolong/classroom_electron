@@ -16,6 +16,9 @@ function createWindow() {
     mainWindow.loadURL(`file://${__dirname}/index.html`)
     mainWindow.setMenu(null);
 
+    mainWindow.webContents.openDevTools()
+
+
     globalShortcut.register('alt+e', function () {
         mainWindow.webContents.openDevTools()
     });
