@@ -31,6 +31,7 @@
     .centerNav .cBody .cOne .cNumber {margin:5px 0px; font-size:18px; color:#ffffff; text-align:center;}
     .centerNav .cBody .cOne img {width:40px; margin:5px 15px 5px 15px;}
     .centerNav .cBody .cOne .cVideo {width:150px; height: 100px; background: white;}
+    .centerNav .cVideo_big {width:400px; height: 300px; background: white;}
 
     .centerNav .cBody .bodys {position: relative; margin: 0px auto; width:70px; height:70px;}
     /*.centerNav .cBody .bodys .cOne:nth-child(1) {top:40px; right:285px;}*/

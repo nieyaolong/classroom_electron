@@ -1,6 +1,6 @@
 "use strict";
 
-var video = require('./video.js');
+let video = require('./video.js');
 
 const ipcRenderer = require('electron').ipcRenderer;
 
@@ -13,38 +13,38 @@ const config = new Config();
 console.log(`config loaded:${config.path}`);
 
 const os = require('os');
-function getIndexFromIPAddress() {
-    let ipAddress = null;
-    let loInfo = os.networkInterfaces();
-    for(let prop in loInfo) {
-        if (loInfo.hasOwnProperty(prop)) {
-            loInfo[prop].forEach(lo => {
-                if (lo.family == 'IPv4' && lo.internal == false) {
-                    ipAddress = lo.address;
-                }
-            });
-        }
-    }
-    let result = ipAddress ? Number(ipAddress.split('.')[3]) : 0;
-    notic(`自动获取座位编号：${result ? result : '失败，请修改配置文件'}`);
-    return result;
-}
+// function getIndexFromIPAddress() {
+//     let ipAddress = null;
+//     let loInfo = os.networkInterfaces();
+//     for(let prop in loInfo) {
+//         if (loInfo.hasOwnProperty(prop)) {
+//             loInfo[prop].forEach(lo => {
+//                 if (lo.family == 'IPv4' && lo.internal == false) {
+//                     ipAddress = lo.address;
+//                 }
+//             });
+//         }
+//     }
+//     let result = ipAddress ? Number(ipAddress.split('.')[3]) : 0;
+//     notic(`自动获取座位编号：${result ? result : '失败，请修改配置文件'}`);
+//     return result;
+// }
 
-var classState = {
-    PENDING: 0, CONNECTED: 1, PROCESSING: 2, DONE: 3, FAILED:4
+let classState = {
+    PENDING: 0, CONNECTED: 1, PROCESSING: 2, DONE: 3, FAILED: 4
 };
 
-if(!config.get('index')) {
+if (!config.get('index')) {
     notic('请正确配置座位编号');
     ipcRenderer.send('logout');
-} else if(!config.get('server')) {
+} else if (!config.get('server')) {
     notic('请正确配置教师端ip地址');
     ipcRenderer.send('logout');
 } else {
-    ipcRenderer.send('login',{edu: params['edu_id'], name: params['user_name']});
+    ipcRenderer.send('login', {edu: params['edu_id'], name: params['user_name']});
 }
 
-var setting = {
+let setting = {
     user: params['user_name'],
     id: params['edu_id'],
     server: `http://${config.get('server')}:${config.get('server_port')}`,
@@ -58,13 +58,13 @@ const ioSocket = require('socket.io-client')(setting.server);
 console.log(`current config: ${JSON.stringify(setting)}`);
 
 
-ioSocket.on('connect', ()=> {
+ioSocket.on('connect', () => {
     console.log(`connected :${setting.server}`);
     ioSocket.emit('login', {index: setting.index, user: setting.user, edu: setting.id});
     updateStatus(classState.CONNECTED);
 
     //todo tmp
-    video.createOverviewConnection(ioSocket);
+    video.createOverviewStream(ioSocket);
 });
 
 ioSocket.on('disconnect', () => {
@@ -97,10 +97,10 @@ function updateStatus(state, data) {
         default:
             message = `未知状态:state`;
     }
-    if(state == classState.PENDING) {
+    if (state == classState.PENDING) {
         //等待5秒钟链接
         setTimeout(() => {
-            if(currentStatus == classState.PENDING) {
+            if (currentStatus == classState.PENDING) {
                 notic(message);
             }
         }, 5000);
@@ -122,17 +122,19 @@ function pushCourse(courseInfo) {
     let courseName = courseInfo.course;
 
     let result = false;
-    if(currentCourse) {
+    if (currentCourse) {
         console.log('no reentrant');
+        //todo tmp
+        video.stopOverviewStream();
     } else {
         currentCourse = courseInfo;
         result = executeCourse(courseName);
         console.log(`pushed course: ${JSON.stringify(courseInfo)}: ${result}`);
     }
-    if(result) {
+    if (result) {
         updateStatus(classState.PROCESSING);
         ioSocket.emit('course-pushed');
-    }else {
+    } else {
         ioSocket.emit('course-failed');
     }
 }
@@ -140,7 +142,7 @@ function pushCourse(courseInfo) {
 //return if success;
 function executeCourse(courseName) {
     let exe = config.get(`courses.${courseName}`);
-    if(!exe || exe == '') {
+    if (!exe || exe == '') {
         console.error('missing target exe.');
         updateStatus(classState.FAILED, '请正确配置课程文件位置');
         currentCourse = null;
@@ -161,7 +163,9 @@ function executeCourse(courseName) {
         //     updateStatus(classState.FAILED, e.message);
         // });
         //todo tmp
-        video.startPushOverViewStream(0, ioSocket, ()=> {console.log('push success')}, (err) => {console.error(err)})
+        video.startPushOverviewSteamAsync(ioSocket, '')
+            .then(() => console.log('push success'))
+            .catch((err) => console.error(err));
 
         return true;
     } catch (error) {
@@ -171,7 +175,7 @@ function executeCourse(courseName) {
 
 }
 
-var answers = [];
+let answers = [];
 
 function handleServerMessage(message) {
     if (message.event) {
@@ -188,7 +192,7 @@ function handleServerMessage(message) {
 }
 
 
-var socketServer = require('net').createServer((c) => {
+let socketServer = require('net').createServer((c) => {
     console.log('client connected');
 
     c.on('end', () => {

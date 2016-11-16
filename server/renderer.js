@@ -6,7 +6,7 @@
 const server = require("http").createServer();
 const io = require("socket.io")(server);
 
-var video = require("./video");
+let video = require("./video");
 
 const port = 9101;
 
@@ -17,8 +17,6 @@ server.listen(port, () => {
 
 io.on('connection', (socket) => {
 
-    video.createOverviewConnection(socket);
-
     socket.on('login', (data) => {
         socket.index = data.index;
         socket.name = data.user;
@@ -26,6 +24,7 @@ io.on('connection', (socket) => {
         seatInfo[data.index] = {user:data.user, edu:data.edu, status: seatStatus.CONNECTED};
         console.log(`student login: ${JSON.stringify(data)}`);
         updateStatus(socket.index)
+        video.init(socket.index, socket);
     });
 
     socket.on('course-pushed', ()=> {
@@ -55,9 +54,15 @@ io.on('connection', (socket) => {
         console.log(`student ${socket.index} logout.`);
         seatInfo[socket.index] = {status:seatStatus.DISCONNECT};
         updateStatus(socket.index);
+        video.destroy(socket.index);
     });
 
 });
+
+showDetail = (index) => {
+    console.log('start request detail stream');
+    video.requestDetailStream(index);
+};
 
 showStudent = (index) => {
     console.log(`showing student ${index}`);
