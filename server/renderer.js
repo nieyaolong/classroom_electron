@@ -6,9 +6,11 @@
 const server = require("http").createServer();
 const io = require("socket.io")(server);
 
-let video = require("./video");
+const video = require("./video");
 
 const port = 9101;
+
+let sockets = new Map();
 
 server.listen(port, () => {
     console.log(`Server listening at port ${port}`);
@@ -24,7 +26,7 @@ io.on('connection', (socket) => {
         seatInfo[data.index] = {user:data.user, edu:data.edu, status: seatStatus.CONNECTED};
         console.log(`student login: ${JSON.stringify(data)}`);
         updateStatus(socket.index)
-        video.init(socket.index, socket);
+        sockets.set(data.index, socket);
     });
 
     socket.on('course-pushed', ()=> {
@@ -33,6 +35,7 @@ io.on('connection', (socket) => {
             seatInfo[index].answer = undefined;
         });
         updateStatus(socket.index);
+        video.init(socket.index, socket);
     });
 
     socket.on('course-done', (data) => {
@@ -54,14 +57,28 @@ io.on('connection', (socket) => {
         console.log(`student ${socket.index} logout.`);
         seatInfo[socket.index] = {status:seatStatus.DISCONNECT};
         updateStatus(socket.index);
+        sockets.delete(socket.index);
         video.destroy(socket.index);
     });
 
 });
 
-showDetail = (index) => {
-    console.log('start request detail stream');
-    video.requestDetailStream(index);
+let currentStreamIndex = null;
+
+streamAction = (index) => {
+    console.log('start request stream');
+    //首先关闭之前的流
+    if(currentStreamIndex != null) {
+        //关闭以开始的流
+        video.requestStreamStop();
+        currentStreamIndex = null;
+        if (currentStreamIndex != index) {
+            //开始了另外一个新流
+            video.requestStreamStart(index, sockets.get(index));
+        }
+    } else {
+        video.requestStreamStart(index, sockets.get(index));
+    }
 };
 
 showStudent = (index) => {

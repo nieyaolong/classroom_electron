@@ -62,9 +62,6 @@ ioSocket.on('connect', () => {
     console.log(`connected :${setting.server}`);
     ioSocket.emit('login', {index: setting.index, user: setting.user, edu: setting.id});
     updateStatus(classState.CONNECTED);
-
-    //todo tmp
-    video.createOverviewStream(ioSocket);
 });
 
 ioSocket.on('disconnect', () => {
@@ -124,8 +121,6 @@ function pushCourse(courseInfo) {
     let result = false;
     if (currentCourse) {
         console.log('no reentrant');
-        //todo tmp
-        video.stopOverviewStream();
     } else {
         currentCourse = courseInfo;
         result = executeCourse(courseName);
@@ -151,21 +146,24 @@ function executeCourse(courseName) {
 
     try {
         // const child = cp.spawn(exe);
-        //
-        // child.on('exit', (m) => {
-        //     console.log(`course ended: ${m}`);
-        //     currentCourse = null;
-        // });
-        // child.on('error', (e) => {
-        //     console.error(e);
-        //     currentCourse = null;
-        //     ioSocket.emit('course-failed');
-        //     updateStatus(classState.FAILED, e.message);
-        // });
-        //todo tmp
-        video.startPushOverviewSteamAsync(ioSocket, '')
-            .then(() => console.log('push success'))
-            .catch((err) => console.error(err));
+        const path = require('path');
+        const child = cp.spawn('electron', [path.join(__dirname, '../course/course.js'), courseName]);
+
+        child.on('exit', (m) => {
+            console.log(`course ended: ${m}`);
+            currentCourse = null;
+            video.stop();
+        });
+        child.on('error', (e) => {
+            console.error(e);
+            currentCourse = null;
+            ioSocket.emit('course-failed');
+            updateStatus(classState.FAILED, e.message);
+            video.stop();
+        });
+
+        //todo name
+        video.start(ioSocket, '微信');
 
         return true;
     } catch (error) {

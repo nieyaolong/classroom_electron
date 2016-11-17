@@ -1,86 +1,110 @@
 "use strict";
 
-let desktopCapturer = require('electron').desktopCapturer;
+const desktopCapturer = require('electron').desktopCapturer;
 
-let overviewPC;
-let detailPC;
+const DESC_EVENT = "VIDEO_DESC";
+const ICE_EVENT = "VIDEO_ICE";
+const THUMBNAIL_DATA = "VIDEO_THUMBNAIL";
+const THUMBNAIL_FAIL = "VIDEO_FAIL";
+const THUMBNAIL_DATA_RECV = "VIDEO_THUMBNAIL_RECV";
+const STREAM_START_EVENT = "VIDEO_START";
+const STREAM_STOP_EVENT = "VIDEO_STOP";
 
-function getDescEvent(isOverview) {
-    return isOverview ? 'overview_desc' : 'detail_desc';
-}
+let pc;
+//当前进行播放的源信息
+let sourceInfo;
 
-function getIceEvent(isOverview) {
-    return isOverview ? 'overview_ice' : 'detail_ice';
-}
-
-
-//bug: 无法同时请求同一个视频的两种不同品质的流,考虑overview使用截图实现
-function getStreamAsync(name, isOverview) {
-    console.error(`getStreamAsync: ${isOverview}`);
+function getWindowSourceAsync() {
+    if(!sourceInfo) {
+        return Promise.reject(new Error("bad source info"));
+    }
     return new Promise((resolve, reject) => {
         desktopCapturer.getSources({
             types: ['window'],
-            // thumbnailSize: isOverview ? {width: 150, height: 100} : {width: 800, height: 600}
-        }, function (error, sources) {
+            thumbnailSize: {width: 150, height: 100}
+        }, (error, sources) => {
             if (error) {
                 reject(error);
                 return;
             }
-            // console.log(sources);
+            let s = null;
             for (let source of sources) {
-                //todo
-                if (source.name.match(/微信.*/)) {
-                    console.log(source);
-                    let config;
-                    if (isOverview) {
-                        config = {
-                            audio: false,
-                            video: {
-                                mandatory: {
-                                    chromeMediaSource: 'desktop',
-                                    sourceId: source.id,
-                                    minWidth: 150,
-                                    maxWidth: 150,
-                                    minHeight: 100,
-                                    maxHeight: 100,
-                                    maxFrameRate: 0.5
-                                }
-                            }
-                        }
-                    } else {
-                        config = {
-                            audio: false,
-                            video: {
-                                mandatory: {
-                                    chromeMediaSource: 'desktop',
-                                    sourceId: source.id,
-                                    minWidth: 800,
-                                    maxWidth: 800,
-                                    minHeight: 600,
-                                    maxHeight: 600
-                                }
-                            }
-                        }
-                    }
-                    navigator.getUserMedia(config, resolve, reject);
-                    return;
+                if (sourceInfo.id && source.id === sourceInfo.id) {
+                    s = source;
+                    break;
+                } else if (source.name.match(new RegExp(`${sourceInfo.name}.*`))) {
+                    s = source;
+                    break;
                 }
             }
-            //get source failed
-            reject(new Error("get source failed"));
-        })
+            if (s) {
+                sourceInfo.id = s.id;
+                resolve(s);
+            } else {
+                reject(new Error("get source failed"));
+            }
+        });
     });
 }
 
-function startAsync(pc, socket, isOverview, name) {
-    let DescEvent = getDescEvent(isOverview);
-    return getStreamAsync(name, isOverview)
+function pushThumbnailLoop(socket) {
+    function delayRetry() {
+        if(sourceInfo) {
+            //2秒后在再发送
+            setTimeout(send, 2000);
+        }
+    }
+
+    function send() {
+        getWindowSourceAsync()
+            .then(source => {
+                //todo 动态压缩率
+                let jpeg = source.thumbnail.toJpeg(100);
+                socket.emit(THUMBNAIL_DATA, {data: jpeg})
+            })
+            .catch(err => {
+                console.log(err);
+                socket.emit(THUMBNAIL_FAIL);
+                //发送截图失败,稍后重试
+                delayRetry();
+            });
+    }
+
+    socket.on(THUMBNAIL_DATA_RECV, delayRetry);
+    send();
+}
+
+function getStreamAsync() {
+    return new Promise((resolve, reject) => {
+        return getWindowSourceAsync()
+            .then(source => {
+                console.error(source);
+                let config = {
+                    audio: false,
+                    video: {
+                        mandatory: {
+                            chromeMediaSource: 'desktop',
+                            sourceId: source.id,
+                            minWidth: 800,
+                            maxWidth: 800,
+                            minHeight: 600,
+                            maxHeight: 600
+                        }
+                    }
+                };
+                navigator.getUserMedia(config, resolve, reject);
+            });
+    });
+}
+
+function startStreamAsync(socket) {
+    return getStreamAsync()
         .then(stream => {
 
             pc.addStream(stream);
 
             let offerOptions = {
-                offerToReceiveAudio: isOverview ? 0 : 1,
+                offerToReceiveAudio: 1,
                 offerToReceiveVideo: 1
             };
 
@@ -88,40 +112,29 @@ function startAsync(pc, socket, isOverview, name) {
                 .then((desc) => {
                     return pc.setLocalDescription(desc)
                         .then(() => {
-                            console.log(desc);
-                            socket.emit(DescEvent, desc);
+                            socket.emit(DESC_EVENT, desc);
                         });
                 });
         });
 }
 
-exports.startPushOverviewSteamAsync = (socket, name) => {
-    return startAsync(overviewPC, socket, true, name);
-};
+function createConnection(socket) {
+    pc = new webkitRTCPeerConnection(null);
 
-// exports.startPushDetailStreamAsync = (socket, name) => {
-//     return startAsync(detailPC, socket, false, name);
-// };
-
-function createConnection(socket, isOverview) {
-    let pc = new webkitRTCPeerConnection(null);
-
-    let IceEvent = getIceEvent(isOverview);
-    let DescEvent = getDescEvent(isOverview);
     pc.onicecandidate = (event) => {
         if (event.candidate) {
-            socket.emit(IceEvent, event.candidate);
+            socket.emit(ICE_EVENT, event.candidate);
             console.log(' ICE candidate: \n' + event.candidate.candidate);
         }
     };
 
-    pc.oniceconnectionstatechange = (event) => {
+    pc.oniceconnectionstatechange = () => {
         let state = pc.iceConnectionState;
         console.log(' ICE state: ' + state);
         //todo failed state
     };
 
-    socket.on(DescEvent, (desc) => {
+    socket.on(DESC_EVENT, (desc) => {
         pc.setRemoteDescription(desc).then(
             () => {
                 console.log('pc on set remote desc success');
@@ -131,40 +144,41 @@ function createConnection(socket, isOverview) {
         });
     });
     console.log('pc created');
+
     return pc;
 }
 
-exports.createOverviewStream = (socket) => {
-    overviewPC = createConnection(socket, true);
+exports.start = (socket, name) => {
+    //获取当前窗口source,开始截图推送流程,并监听流请求
+    //todo source info
+    sourceInfo = {name: name};
+    pushThumbnailLoop(socket);
 
-    //开始监听detail请求
-    socket.on('detail_request', () => {
+    //监听开始流请求
+    socket.on(STREAM_START_EVENT, () => {
         //todo check state
-        console.log('start push detail stream');
+        console.log('start push stream');
 
-        detailPC = createConnection(socket, false);
-        startAsync(detailPC, socket, false, '')
-            .then(() => console.log('push detail success.'))
+        pc = createConnection(socket);
+
+        startStreamAsync(socket)
+            .then(() => console.log('push stream success.'))
             .catch((err) => console.error(err));
     });
+
+    //监听关闭流请求
+    socket.on(STREAM_STOP_EVENT, this.stop);
 };
 
-// exports.createDetailStream = (socket) => {
-//     detailPC = createConnection(socket, false);
-// };
-
-function stop(isOverview) {
-    let pc = isOverview ? overviewPC : detailPC;
+exports.stop = () => {
+    if(!pc) {
+        return;
+    }
     for (let stream of pc.getLocalStreams()) {
         pc.removeStream(stream);
     }
     pc.close();
-}
-
-exports.stopOverviewStream = () => {
-    stop(true);
+    pc = null;
+    sourceInfo = null;
 };
 
-exports.stopDetailStream = () => {
-    stop(false);
-};
