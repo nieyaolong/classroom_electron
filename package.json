@@ -4,7 +4,7 @@
   "private": true,
   "main": "main.js",
   "scripts": {
-    "package": "electron-packager ./teacher/ classroomTeacher --platform=win32 --win32metadata.ProductName 威爱通教室  --win32metadata.FileDescription 威爱通教师端  --out ./package --version 1.3.5 --overwrite --icon img/classroom.ico",
+    "package": "electron-packager ./dist/ classroomTeacher --platform=win32 --win32metadata.ProductName 威爱通教室  --win32metadata.FileDescription 威爱通教师端  --out ./package --version 1.3.5 --overwrite --icon img/classroom.ico",
     "start": "concurrently \"npm run start-server\" \"npm run start-electron\"",
     "start-electron": "electron .",
     "start-server": "npm run start-server:dev",
