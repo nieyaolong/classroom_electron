@@ -1,0 +1,13 @@
+@import "../../style/global";
+@import "../../style/colors";
+
+html, body {
+  background-color: $default-background-color !important;
+}
+
+.main-content {
+  display: inline-block;
+  min-height: 800px;
+  width: $content-max-width - $side-menu-width;
+  padding: $main-content-padding + 10px $main-content-padding-right $main-content-padding $main-content-padding-left;
+}
