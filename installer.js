@@ -21,7 +21,7 @@ promiseClient.then(() => {
 
     return electronInstaller.createWindowsInstaller({
         appDirectory: 'package/classroomServer-win32-x64',
-        outputDirectory: 'installer/server',
+        outputDirectory: 'installer/teacher',
         authors: '威爱教育',
         owners: '威爱教育',
         title: '威爱通教室',
@@ -33,7 +33,7 @@ promiseClient.then(() => {
         noMsi: true,
     });
 }).then(() => {
-    console.log('server done');
+    console.log('teacher done');
 }).catch(err => {
     console.error(err);
 });

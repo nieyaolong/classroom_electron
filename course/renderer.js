@@ -78,7 +78,7 @@ function handleServerMessage(message) {
 }
 
 const socketClient = require('net').connect({port:9100}, () => {
-    console.error('connected to server');
+    console.error('connected to teacher');
 
     socketClient.on('data', (data) => {
         console.error(`server data: ${data}`);

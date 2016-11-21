@@ -65,7 +65,7 @@ ioSocket.on('connect', () => {
 });
 
 ioSocket.on('disconnect', () => {
-    console.log('disconnect with server');
+    console.log('disconnect with teacher');
 });
 
 ioSocket.on('start course', pushCourse);
@@ -205,5 +205,5 @@ let socketServer = require('net').createServer((c) => {
     c.write(JSON.stringify({course: currentCourse}));
 });
 socketServer.listen(setting.port, () => {
-    console.log('server bound');
+    console.log('teacher bound');
 });
