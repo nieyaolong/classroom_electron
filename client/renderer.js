@@ -61,10 +61,12 @@ console.log(`current config: ${JSON.stringify(setting)}`);
 ioSocket.on('connect', () => {
     console.log(`connected :${setting.server}`);
     ioSocket.emit('login', {index: setting.index, user: setting.user, edu: setting.id});
+    video.init(ioSocket);
     updateStatus(classState.CONNECTED);
 });
 
 ioSocket.on('disconnect', () => {
+    video.destroy();
     console.log('disconnect with server');
 });
 

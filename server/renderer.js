@@ -27,7 +27,7 @@ io.on('connection', (socket) => {
         console.log(`student login: ${JSON.stringify(data)}`);
         updateStatus(socket.index);
         sockets.set(socket.index, socket);
-        console.error(sockets);
+        video.init(socket.index, socket);
     });
 
     socket.on('course-pushed', ()=> {
@@ -36,7 +36,6 @@ io.on('connection', (socket) => {
             seatInfo[index].answer = undefined;
         });
         updateStatus(socket.index);
-        video.init(socket.index, socket);
     });
 
     socket.on('course-done', (data) => {
@@ -60,7 +59,6 @@ io.on('connection', (socket) => {
         updateStatus(socket.index);
         sockets.delete(socket.index);
         video.destroy(socket.index);
-        console.error(sockets);
     });
 
     socket.on('reconnect', (data) => {
@@ -74,7 +72,6 @@ let currentStreamIndex = null;
 
 streamAction = (index) => {
     console.log('start request stream');
-    console.error(sockets);
     //首先关闭之前的流
     if(currentStreamIndex != null) {
         //关闭以开始的流

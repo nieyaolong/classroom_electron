@@ -2,6 +2,7 @@
 
 const desktopCapturer = require('electron').desktopCapturer;
 
+const INIT_EVENT = "VIDEO_INIT";
 const DESC_EVENT = "VIDEO_DESC";
 const ICE_EVENT = "VIDEO_ICE";
 const THUMBNAIL_DATA = "VIDEO_THUMBNAIL";
@@ -15,7 +16,7 @@ let pc;
 let sourceInfo;
 
 function getWindowSourceAsync() {
-    if(!sourceInfo) {
+    if (!sourceInfo) {
         return Promise.reject(new Error("bad source info"));
     }
     return new Promise((resolve, reject) => {
@@ -49,7 +50,7 @@ function getWindowSourceAsync() {
 
 function pushThumbnailLoop(socket) {
     function delayRetry() {
-        if(sourceInfo) {
+        if (sourceInfo) {
             //2秒后在再发送
             setTimeout(send, 2000);
         }
@@ -97,71 +98,73 @@ function getStreamAsync() {
     });
 }
 
-function startStreamAsync(socket) {
+function startStreamAsync(pc, socket) {
     return getStreamAsync()
         .then(stream => {
-
+            console.error(pc);
             pc.addStream(stream);
-
-            let offerOptions = {
-                offerToReceiveAudio: 1,
-                offerToReceiveVideo: 1
-            };
-
-            return pc.createOffer(offerOptions)
-                .then((desc) => {
-                    return pc.setLocalDescription(desc)
-                        .then(() => {
-                            socket.emit(DESC_EVENT, desc);
-                        });
-                });
+            createAnswerAndSend(pc, socket);
         });
 }
 
-function createConnection(socket) {
-    pc = new webkitRTCPeerConnection(null);
+function createAnswerAndSend(pc, socket) {
+    pc.createAnswer().then((answer) => {
+        pc.setLocalDescription(answer).then(
+            () => {
+                console.log('pc on set local desc');
+                socket.emit(DESC_EVENT, answer);
+                console.error(pc);
+            });
+    });
+}
 
-    pc.onicecandidate = (event) => {
-        if (event.candidate) {
-            socket.emit(ICE_EVENT, event.candidate);
-            console.log(' ICE candidate: \n' + event.candidate.candidate);
-        }
-    };
-
-    pc.oniceconnectionstatechange = () => {
-        let state = pc.iceConnectionState;
-        console.log(' ICE state: ' + state);
-        //todo failed state
-    };
-
+function pcInit(socket) {
     socket.on(DESC_EVENT, (desc) => {
+        pc = new webkitRTCPeerConnection(null);
+
+        pc.onicecandidate = (event) => {
+            if (event.candidate) {
+                socket.emit(ICE_EVENT, event.candidate);
+                // console.log(' ICE candidate: \n' + event.candidate.candidate);
+            }
+        };
+
+        pc.oniceconnectionstatechange = () => {
+            let state = pc.iceConnectionState;
+            console.log(' ICE state: ' + state);
+            //todo failed state
+        };
+
+        console.log('socket on desc');
         pc.setRemoteDescription(desc).then(
             () => {
                 console.log('pc on set remote desc success');
-            }
-        ).catch(err => {
-            console.error(err);
-        });
+            });
     });
-    console.log('pc created');
-
-    return pc;
 }
+
+exports.init = (socket) => {
+    pcInit(socket);
+};
+
+exports.destroy = () => {
+    if (pc) {
+        pc.close();
+    }
+    pc = null;
+};
 
 exports.start = (socket, name) => {
     //获取当前窗口source,开始截图推送流程,并监听流请求
     //todo source info
     sourceInfo = {name: name};
-    pushThumbnailLoop(socket);
+    // pushThumbnailLoop(socket);
 
     //监听开始流请求
     socket.on(STREAM_START_EVENT, () => {
         //todo check state
         console.log('start push stream');
-
-        pc = createConnection(socket);
-
-        startStreamAsync(socket)
+        startStreamAsync(pc, socket)
             .then(() => console.log('push stream success.'))
             .catch((err) => console.error(err));
     });
@@ -171,14 +174,13 @@ exports.start = (socket, name) => {
 };
 
 exports.stop = () => {
-    if(!pc) {
-        return;
-    }
+    console.log('pc on stop')
     for (let stream of pc.getLocalStreams()) {
         pc.removeStream(stream);
     }
+    sourceInfo = null;
     pc.close();
     pc = null;
-    sourceInfo = null;
+    console.log('stop stream success');
 };
 
