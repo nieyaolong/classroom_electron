@@ -20,13 +20,14 @@ server.listen(port, () => {
 io.on('connection', (socket) => {
 
     socket.on('login', (data) => {
-        socket.index = data.index;
+        socket.index = Number(data.index);
         socket.name = data.user;
         socket.edu = data.edu;
         seatInfo[data.index] = {user:data.user, edu:data.edu, status: seatStatus.CONNECTED};
         console.log(`student login: ${JSON.stringify(data)}`);
-        updateStatus(socket.index)
-        sockets.set(data.index, socket);
+        updateStatus(socket.index);
+        sockets.set(socket.index, socket);
+        console.error(sockets);
     });
 
     socket.on('course-pushed', ()=> {
@@ -59,7 +60,13 @@ io.on('connection', (socket) => {
         updateStatus(socket.index);
         sockets.delete(socket.index);
         video.destroy(socket.index);
+        console.error(sockets);
     });
+
+    socket.on('reconnect', (data) => {
+        console.log(`student reconnect: ${JSON.stringify(data)}`);
+        console.error(data);
+    })
 
 });
 
@@ -67,6 +74,7 @@ let currentStreamIndex = null;
 
 streamAction = (index) => {
     console.log('start request stream');
+    console.error(sockets);
     //首先关闭之前的流
     if(currentStreamIndex != null) {
         //关闭以开始的流
@@ -74,10 +82,10 @@ streamAction = (index) => {
         currentStreamIndex = null;
         if (currentStreamIndex != index) {
             //开始了另外一个新流
-            video.requestStreamStart(index, sockets.get(index));
+            video.requestStreamStart(index, sockets.get(Number(index)));
         }
     } else {
-        video.requestStreamStart(index, sockets.get(index));
+        video.requestStreamStart(index, sockets.get(Number(index)));
     }
 };
 

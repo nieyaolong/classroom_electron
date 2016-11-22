@@ -35,17 +35,16 @@ function createStreamConnection(socket) {
         pc.setRemoteDescription(desc).then(
             () => {
                 console.log('pc on set remote desc success');
+                pc.createAnswer().then((answer) => {
+                    pc.setLocalDescription(answer).then(
+                        () => {
+                            console.log('pc on set local desc');
+                            socket.emit(DESC_EVENT, answer);
+                        }
+                    );
+                });
             }
         );
-
-        pc.createAnswer().then((desc) => {
-            pc.setLocalDescription(desc).then(
-                () => {
-                    console.log('pc on set local desc');
-                    socket.emit(DESC_EVENT, desc);
-                }
-            );
-        });
     });
 
     pc.oniceconnectionstatechange = () => {
@@ -118,6 +117,7 @@ exports.destroy = (index) => {
     if(pc) {
         pc.close();
     }
+    pc = null;
     currentStreamInfo.index = null;
     currentStreamInfo.socket = null;
 };
