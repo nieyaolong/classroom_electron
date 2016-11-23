@@ -23,14 +23,14 @@ io.on('connection', (socket) => {
         socket.index = Number(data.index);
         socket.name = data.user;
         socket.edu = data.edu;
-        seatInfo[data.index] = {user:data.user, edu:data.edu, status: seatStatus.CONNECTED};
+        seatInfo[data.index] = {user: data.user, edu: data.edu, status: seatStatus.CONNECTED};
         console.log(`student login: ${JSON.stringify(data)}`);
         updateStatus(socket.index);
         sockets.set(socket.index, socket);
         video.init(socket.index, socket);
     });
 
-    socket.on('course-pushed', ()=> {
+    socket.on('course-pushed', () => {
         seatInfo[socket.index].status = seatStatus.PROCESSING;
         Object.keys(seatInfo).forEach(index => {
             seatInfo[index].answer = undefined;
@@ -40,7 +40,7 @@ io.on('connection', (socket) => {
 
     socket.on('course-done', (data) => {
         let answer;
-        if(data.answers instanceof Array && data.answers.length > 0) {
+        if (data.answers instanceof Array && data.answers.length > 0) {
             answer = data.answers[0];
         } else {
             console.error('BUG:bad answer');
@@ -51,15 +51,26 @@ io.on('connection', (socket) => {
         console.log(`student ${socket.name} submit answer: ${answer}`);
         updateStatus(socket.index);
         update_answer();
-        updateThumbnail(socket.index,null);
     });
+
+    socket.on('course-exit', (data) => {
+        //课程进程结束
+        seatInfo[socket.index].status = data ? seatStatus.FAILED : seatStatus.CONNECTED;
+        updateStatus(socket.index);
+        updateThumbnail(socket.index, null);
+        if (currentStreamIndex == socket.index) {
+            updateVideo(null);
+            currentStreamIndex = null;
+        }
+    });
+
 
     socket.on('disconnect', () => {
         console.log(`student ${socket.index} logout.`);
-        seatInfo[socket.index] = {status:seatStatus.DISCONNECT};
+        seatInfo[socket.index] = {status: seatStatus.DISCONNECT};
         updateStatus(socket.index);
         sockets.delete(socket.index);
-        updateThumbnail(socket.index,null);
+        updateThumbnail(socket.index, null);
         video.destroy(socket.index);
     });
 
@@ -74,14 +85,14 @@ let currentStreamIndex = null;
 
 streamAction = (index) => {
     //首先关闭之前的流
-    if(currentStreamIndex != null) {
+    if (currentStreamIndex != null) {
         //关闭已开始的流
         video.requestStreamStop();
         if (currentStreamIndex != index) {
             //开始了另外一个新流
             currentStreamIndex = index;
             video.requestStreamStart(index, sockets.get(Number(index)));
-        } else{
+        } else {
             currentStreamIndex = null;
         }
     } else {
@@ -110,9 +121,9 @@ showStudent = (index) => {
             break;
     }
     let message = `状态: ${statusInfo}\n`;
-    if(studentInfo) {
+    if (studentInfo) {
         message += studentInfo;
-        if(answerInfo) {
+        if (answerInfo) {
             message += answerInfo;
         }
     }
@@ -124,14 +135,14 @@ pushCourse = (index) => {
     console.log(`pushing course ${index}`);
     let c = null;
     courseInfo.forEach(course => {
-        if(course.id === index) {
+        if (course.id === index) {
             c = course;
         }
     });
-    if(!c || !c.name) {
+    if (!c || !c.name) {
         alert('课程信息有误');
     } else {
-        io.sockets.emit('start course', {course: c.name, index:c.index});
+        io.sockets.emit('start course', {course: c.name, index: c.index});
         alert(`开始课程 ${c.title}`);
     }
 };

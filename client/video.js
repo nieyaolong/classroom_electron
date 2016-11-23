@@ -28,7 +28,7 @@ function getWindowSourceAsync() {
             }
             let s = null;
             for (let source of sources) {
-                if(!sourceInfo) {
+                if (!sourceInfo) {
                     break;
                 }
                 if (sourceInfo.id && source.id === sourceInfo.id) {
@@ -97,16 +97,17 @@ function getStreamAsync() {
     });
 }
 
-function startStreamAsync(pc, socket) {
+function startStreamAsync(pc) {
     return getStreamAsync()
         .then(stream => {
-            pc.addStream(stream);
-            createAnswerAndSend(pc, socket);
+            if(pc.signalingState != 'closed') {
+                pc.addStream(stream);
+            }
         });
 }
 
 function createAnswerAndSend(pc, socket) {
-    pc.createAnswer().then((answer) => {
+    return pc.createAnswer().then((answer) => {
         pc.setLocalDescription(answer).then(
             () => {
                 console.log('pc on set local desc');
@@ -127,7 +128,7 @@ function pcInit(socket) {
         };
 
         pc.oniceconnectionstatechange = () => {
-            if(!pc) {
+            if (!pc) {
                 return;
             }
             let state = pc.iceConnectionState;
@@ -150,8 +151,8 @@ exports.init = (socket) => {
 exports.destroy = () => {
     if (pc) {
         pc.close();
+        pc = null;
     }
-    pc = null;
     sourceInfo = null;
 };
 
@@ -163,10 +164,8 @@ exports.start = (socket, name) => {
 
     //监听开始流请求
     socket.on(STREAM_START_EVENT, () => {
-        //todo check state
-        console.log('start push stream');
-        startStreamAsync(pc, socket)
-            .then(() => console.log('push stream success.'))
+        startStreamAsync(pc)
+            .then(() => createAnswerAndSend(pc, socket))
             .catch((err) => console.error(err));
     });
 
@@ -176,7 +175,7 @@ exports.start = (socket, name) => {
 
 exports.stop = () => {
     console.log('pc on stop');
-    if(pc){
+    if (pc) {
         pc.close();
         pc = null;
     }

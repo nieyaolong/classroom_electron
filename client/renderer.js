@@ -136,13 +136,18 @@ function pushCourse(courseInfo) {
     }
 }
 
+function videoExit() {
+    currentCourse = null;
+    video.stop();
+}
+
 //return if success;
 function executeCourse(courseName) {
     let exe = config.get(`courses.${courseName}`);
     if (!exe || exe == '') {
         console.error('missing target exe.');
         updateStatus(classState.FAILED, '请正确配置课程文件位置');
-        currentCourse = null;
+        videoExit();
         return false;
     }
 
@@ -153,19 +158,18 @@ function executeCourse(courseName) {
 
         child.on('exit', (m) => {
             console.log(`course ended: ${m}`);
-            currentCourse = null;
-            video.stop();
+            ioSocket.emit('course-exit', m);
+            videoExit();
         });
         child.on('error', (e) => {
             console.error(e);
-            currentCourse = null;
-            ioSocket.emit('course-failed');
+            videoExit();
+            ioSocket.emit('course-exit', -1);
             updateStatus(classState.FAILED, e.message);
-            video.stop();
         });
 
         //todo name
-        video.start(ioSocket, '微信');
+        video.start(ioSocket, 'VI Classroom Course Demo');
 
         return true;
     } catch (error) {
