@@ -5,7 +5,6 @@ const nativeImage = require('electron').nativeImage;
 const DESC_EVENT = "VIDEO_DESC";
 const ICE_EVENT = "VIDEO_ICE";
 const THUMBNAIL_DATA = "VIDEO_THUMBNAIL";
-const THUMBNAIL_FAIL = "VIDEO_FAIL";
 const THUMBNAIL_DATA_RECV = "VIDEO_THUMBNAIL_RECV";
 const STREAM_START_EVENT = "VIDEO_START";
 const STREAM_STOP_EVENT = "VIDEO_STOP";
@@ -90,11 +89,6 @@ exports.init = (index, socket) => {
         socket.emit(THUMBNAIL_DATA_RECV);
     });
 
-    socket.on(THUMBNAIL_FAIL, () => {
-        //todo show fail info;
-        console.error(`thumbnail failed: ${index}`);
-    });
-
     let pc = createStreamConnection(socket);
     pcMap.set(index, pc);
 };
@@ -105,12 +99,12 @@ exports.requestStreamStart = (index, socket) => {
     if (!pc) {//TODO: check pc state
         console.error('bug:bad index, request stream failed');
     }
+    console.log(`request start stream ${index}`);
     createAndSendOfferAsync(pc, socket)
         .then(() => {
             currentStreamInfo.index = index;
             currentStreamInfo.socket = socket;
             socket.emit(STREAM_START_EVENT);
-            console.log(`start request stream ${index}`);
         }).catch(err => {
             console.error(err);
     })
@@ -118,6 +112,7 @@ exports.requestStreamStart = (index, socket) => {
 
 //服务端主动请求关闭流
 exports.requestStreamStop = () => {
+    console.log(`request stop stream ${currentStreamInfo.index}`);
     if (!currentStreamInfo.socket) {//TODO: check pc state
         console.error('bug:stop stream failed, miss socket');
     }
@@ -136,9 +131,10 @@ exports.destroy = (index) => {
     if (index && currentStreamInfo.index == index) {
         setThumbnailURL(index, null);
     }
-    let pc = pcMap.delete(index);
+    let pc = pcMap.get(index);
     if (pc) {
         pc.close();
+        pcMap.delete(index);
     }
     currentStreamInfo.index = null;
     currentStreamInfo.socket = null;

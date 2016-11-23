@@ -51,6 +51,7 @@ io.on('connection', (socket) => {
         console.log(`student ${socket.name} submit answer: ${answer}`);
         updateStatus(socket.index);
         update_answer();
+        updateThumbnail(socket.index,null);
     });
 
     socket.on('disconnect', () => {
@@ -58,6 +59,7 @@ io.on('connection', (socket) => {
         seatInfo[socket.index] = {status:seatStatus.DISCONNECT};
         updateStatus(socket.index);
         sockets.delete(socket.index);
+        updateThumbnail(socket.index,null);
         video.destroy(socket.index);
     });
 
@@ -71,17 +73,19 @@ io.on('connection', (socket) => {
 let currentStreamIndex = null;
 
 streamAction = (index) => {
-    console.log('start request stream');
     //首先关闭之前的流
     if(currentStreamIndex != null) {
-        //关闭以开始的流
+        //关闭已开始的流
         video.requestStreamStop();
-        currentStreamIndex = null;
         if (currentStreamIndex != index) {
             //开始了另外一个新流
+            currentStreamIndex = index;
             video.requestStreamStart(index, sockets.get(Number(index)));
+        } else{
+            currentStreamIndex = null;
         }
     } else {
+        currentStreamIndex = index;
         video.requestStreamStart(index, sockets.get(Number(index)));
     }
 };

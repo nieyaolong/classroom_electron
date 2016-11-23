@@ -2,11 +2,9 @@
 
 const desktopCapturer = require('electron').desktopCapturer;
 
-const INIT_EVENT = "VIDEO_INIT";
 const DESC_EVENT = "VIDEO_DESC";
 const ICE_EVENT = "VIDEO_ICE";
 const THUMBNAIL_DATA = "VIDEO_THUMBNAIL";
-const THUMBNAIL_FAIL = "VIDEO_FAIL";
 const THUMBNAIL_DATA_RECV = "VIDEO_THUMBNAIL_RECV";
 const STREAM_START_EVENT = "VIDEO_START";
 const STREAM_STOP_EVENT = "VIDEO_STOP";
@@ -30,6 +28,9 @@ function getWindowSourceAsync() {
             }
             let s = null;
             for (let source of sources) {
+                if(!sourceInfo) {
+                    break;
+                }
                 if (sourceInfo.id && source.id === sourceInfo.id) {
                     s = source;
                     break;
@@ -64,8 +65,7 @@ function pushThumbnailLoop(socket) {
                 socket.emit(THUMBNAIL_DATA, {data: jpeg})
             })
             .catch(err => {
-                console.log(err);
-                socket.emit(THUMBNAIL_FAIL);
+                // console.log(err);
                 //发送截图失败,稍后重试
                 delayRetry();
             });
@@ -79,7 +79,6 @@ function getStreamAsync() {
     return new Promise((resolve, reject) => {
         return getWindowSourceAsync()
             .then(source => {
-                console.error(source);
                 let config = {
                     audio: false,
                     video: {
@@ -101,7 +100,6 @@ function getStreamAsync() {
 function startStreamAsync(pc, socket) {
     return getStreamAsync()
         .then(stream => {
-            console.error(pc);
             pc.addStream(stream);
             createAnswerAndSend(pc, socket);
         });
@@ -113,7 +111,6 @@ function createAnswerAndSend(pc, socket) {
             () => {
                 console.log('pc on set local desc');
                 socket.emit(DESC_EVENT, answer);
-                console.error(pc);
             });
     });
 }
@@ -130,6 +127,9 @@ function pcInit(socket) {
         };
 
         pc.oniceconnectionstatechange = () => {
+            if(!pc) {
+                return;
+            }
             let state = pc.iceConnectionState;
             console.log(' ICE state: ' + state);
             //todo failed state
@@ -152,13 +152,14 @@ exports.destroy = () => {
         pc.close();
     }
     pc = null;
+    sourceInfo = null;
 };
 
 exports.start = (socket, name) => {
     //获取当前窗口source,开始截图推送流程,并监听流请求
     //todo source info
     sourceInfo = {name: name};
-    // pushThumbnailLoop(socket);
+    pushThumbnailLoop(socket);
 
     //监听开始流请求
     socket.on(STREAM_START_EVENT, () => {
@@ -174,13 +175,11 @@ exports.start = (socket, name) => {
 };
 
 exports.stop = () => {
-    console.log('pc on stop')
-    for (let stream of pc.getLocalStreams()) {
-        pc.removeStream(stream);
+    console.log('pc on stop');
+    if(pc){
+        pc.close();
+        pc = null;
     }
-    sourceInfo = null;
-    pc.close();
-    pc = null;
     console.log('stop stream success');
 };
 
