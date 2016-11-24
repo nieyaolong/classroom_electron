@@ -207,7 +207,7 @@ function requestStreamStartAsync(index, socket) {
     }).catch(err => {
         PCStateCB[PCState.STABLE] = null;
         PCStateCB[PCState.FAILED] = null;
-        updatePCState(PCState.FAILED);
+        updatePCState(PCState.IDLE);
         return Promise.reject(err);
     });
 }
@@ -247,7 +247,7 @@ function requestStreamStopAsync(index, socket) {
     }).catch(err => {
         PCStateCB[PCState.IDLE] = null;
         PCStateCB[PCState.FAILED] = null;
-        updatePCState(PCState.FAILED);
+        updatePCState(PCState.IDLE);
         return Promise.reject(err);
     });
 }
@@ -285,7 +285,7 @@ exports.destroy = (index) => {
         updateVideo(null);
         //状态更新
         if (currentStreamInfo.state != PCState.IDLE && currentStreamInfo.state != PCState.FAILED) {
-            updatePCState(PCState.FAILED);
+            updatePCState(PCState.IDLE);
         }
     }
     console.log(`destroy video ${index}`);
