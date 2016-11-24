@@ -27,7 +27,7 @@ io.on('connection', (socket) => {
         console.log(`student login: ${JSON.stringify(data)}`);
         updateStatus(socket.index);
         sockets.set(socket.index, socket);
-        video.init(socket.index, socket);
+        video.init(socket);
     });
 
     socket.on('course-pushed', () => {
@@ -83,21 +83,23 @@ io.on('connection', (socket) => {
 
 let currentStreamIndex = null;
 
-streamAction = (index) => {
-    //首先关闭之前的流
-    if (currentStreamIndex != null) {
-        //关闭已开始的流
-        video.requestStreamStop();
-        if (currentStreamIndex != index) {
-            //开始了另外一个新流
-            currentStreamIndex = index;
-            video.requestStreamStart(index, sockets.get(Number(index)));
-        } else {
-            currentStreamIndex = null;
+function getSocketByIndex(index) {
+    for(let name in io.sockets.sockets) {
+        if(io.sockets.sockets.hasOwnProperty(name)) {
+            let s = io.sockets.sockets[name];
+            if (s.index == index) {
+                return s;
+            }
         }
-    } else {
-        currentStreamIndex = index;
-        video.requestStreamStart(index, sockets.get(Number(index)));
+    }
+    console.error(`Miss socket ${index}`);
+    return null;
+}
+
+streamAction = (index) => {
+    let socket = getSocketByIndex(index);
+    if(socket) {
+        video.requestStream(index, socket);
     }
 };
 

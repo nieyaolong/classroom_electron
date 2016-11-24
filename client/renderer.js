@@ -169,7 +169,7 @@ function executeCourse(courseName) {
         });
 
         //todo name
-        video.start(ioSocket, 'VI Classroom Course Demo');
+        video.start(ioSocket, 'VI Classroom Course Demo', setting.index);
 
         return true;
     } catch (error) {
