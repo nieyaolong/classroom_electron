@@ -61,12 +61,10 @@ console.log(`current config: ${JSON.stringify(setting)}`);
 ioSocket.on('connect', () => {
     console.log(`connected :${setting.server}`);
     ioSocket.emit('login', {index: setting.index, user: setting.user, edu: setting.id});
-    video.init(ioSocket);
     updateStatus(classState.CONNECTED);
 });
 
 ioSocket.on('disconnect', () => {
-    video.destroy();
     console.log('disconnect with server');
 });
 
@@ -136,18 +134,14 @@ function pushCourse(courseInfo) {
     }
 }
 
-function videoExit() {
-    currentCourse = null;
-    video.stop();
-}
-
 //return if success;
 function executeCourse(courseName) {
     let exe = config.get(`courses.${courseName}`);
     if (!exe || exe == '') {
         console.error('missing target exe.');
         updateStatus(classState.FAILED, '请正确配置课程文件位置');
-        videoExit();
+        currentCourse = null;
+        video.stop(ioSocket);
         return false;
     }
 
@@ -159,11 +153,13 @@ function executeCourse(courseName) {
         child.on('exit', (m) => {
             console.log(`course ended: ${m}`);
             ioSocket.emit('course-exit', m);
-            videoExit();
+            currentCourse = null;
+            video.stop(ioSocket);
         });
         child.on('error', (e) => {
             console.error(e);
-            videoExit();
+            currentCourse = null;
+            video.stop(ioSocket);
             ioSocket.emit('course-exit', -1);
             updateStatus(classState.FAILED, e.message);
         });
@@ -174,6 +170,8 @@ function executeCourse(courseName) {
         return true;
     } catch (error) {
         console.error(error);
+        currentCourse = null;
+        video.stop(ioSocket);
         return false;
     }
 

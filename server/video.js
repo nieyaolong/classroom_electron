@@ -6,9 +6,8 @@ const DESC_EVENT = "VIDEO_DESC";
 const ICE_EVENT = "VIDEO_ICE";
 const THUMBNAIL_DATA = "VIDEO_THUMBNAIL";
 const THUMBNAIL_DATA_RECV = "VIDEO_THUMBNAIL_RECV";
-const STREAM_START_EVENT = "VIDEO_START";
 const STREAM_STOP_EVENT = "VIDEO_STOP";
-const STREAM_FAIL_EVENT = "VIDEO_FAIL";
+const STREAM_REMOTE_EVENT = "VIDEO_REMOTE_RESULT";
 
 // server端始终使用一个PC, 使用pcState保证pc只能同时和一个对端通信
 // 当state处于除IDLE和FAIL以外的状态时,index和socket可用
@@ -173,6 +172,7 @@ function requestStreamStartAsync(index, socket) {
         return Promise.reject(new Error('BAD PC STATE'));
     }
     console.log(`request start stream ${index}`);
+    let timer;
     return new Promise((resolve, reject) => {
         //挂载cb
         PCStateCB[PCState.STABLE] = () => {
@@ -184,17 +184,24 @@ function requestStreamStartAsync(index, socket) {
             reject(new Error('start stream failed: pc state failed'));
         };
 
+        socket.once(STREAM_REMOTE_EVENT, (msg) => {
+            if(msg) {
+                //do nothing ,waiting for ice state
+            }else {
+                reject(new Error(`remote failed`));
+            }
+        });
+
         updatePCState(PCState.CONNECTING, index);
         createAndSendOfferAsync(socket)
-            .then(() => {
-                socket.emit(STREAM_START_EVENT, index);
-            }).catch(err => {
+            .catch(err => {
             console.error(err);
             //请求开始视频出现异常
             updatePCState(PCState.FAILED);
         });
+
         //超时处理
-        setTimeout(() => {
+        timer = setTimeout(() => {
             if (currentStreamInfo.state == PCState.CONNECTING) {
                 //仍处于连接状态,超时
                 updatePCState(PCState.FAILED);
@@ -202,12 +209,20 @@ function requestStreamStartAsync(index, socket) {
             }
         }, WAITNG_TIME);
     }).then(() => {
+        socket.removeAllListeners(STREAM_REMOTE_EVENT);
         PCStateCB[PCState.STABLE] = null;
         PCStateCB[PCState.FAILED] = null;
+        if(timer) {
+            clearTimeout(timer);
+        }
     }).catch(err => {
+        socket.removeAllListeners(STREAM_REMOTE_EVENT);
         PCStateCB[PCState.STABLE] = null;
         PCStateCB[PCState.FAILED] = null;
         updatePCState(PCState.IDLE);
+        if(timer) {
+            clearTimeout(timer);
+        }
         return Promise.reject(err);
     });
 }
@@ -219,6 +234,7 @@ function requestStreamStopAsync(index, socket) {
     }
     console.log(`request stop stream ${currentStreamInfo.index}`);
 
+    let timer;
     return new Promise((resolve, reject) => {
         //挂载cb
         PCStateCB[PCState.IDLE] = () => {
@@ -230,11 +246,19 @@ function requestStreamStopAsync(index, socket) {
             reject(new Error('stop stream failed: pc state failed'));
         };
 
+        socket.once(STREAM_REMOTE_EVENT, (msg) => {
+            if (msg) {
+                resolve();
+            } else {
+                reject(new Error(`remote failed: ${msg}`));
+            }
+        });
+
         //发送关闭流请求
         updatePCState(PCState.CLOSING);
         socket.emit(STREAM_STOP_EVENT, index);
         //超时处理
-        setTimeout(() => {
+        timer = setTimeout(() => {
             if (currentStreamInfo.state == PCState.CLOSING) {
                 //仍处于待关闭状态,超时
                 updatePCState(PCState.FAILED);
@@ -242,12 +266,20 @@ function requestStreamStopAsync(index, socket) {
             }
         }, WAITNG_TIME);
     }).then(() => {
+        socket.removeAllListeners(STREAM_REMOTE_EVENT);
         PCStateCB[PCState.IDLE] = null;
         PCStateCB[PCState.FAILED] = null;
+        if(timer) {
+            clearTimeout(timer);
+        }
     }).catch(err => {
+        socket.removeAllListeners(STREAM_REMOTE_EVENT);
         PCStateCB[PCState.IDLE] = null;
         PCStateCB[PCState.FAILED] = null;
         updatePCState(PCState.IDLE);
+        if(timer) {
+            clearTimeout(timer);
+        }
         return Promise.reject(err);
     });
 }
