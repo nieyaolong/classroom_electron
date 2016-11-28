@@ -110,7 +110,7 @@ function createPC() {
     };
 
     navigator.getUserMedia({audio: true}, stream => {
-        console.error(stream);
+        stream.getAudioTracks()[0].enabled = false;
         pc.addStream(stream);
     }, err => {
         //todo 提示没有输入设备
@@ -119,6 +119,11 @@ function createPC() {
 
     return pc;
 }
+
+muteClick = () => {
+    let track = pc.getLocalStreams()[0].getAudioTracks()[0];
+    track.enabled = !track.enabled;
+};
 
 function hookSocket(socket) {
     //thumbnail event

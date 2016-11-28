@@ -174,8 +174,11 @@
             str += `<div class="cOne" sid="${seat_id}"><div class="cBor" onClick="streamAction(${seat_id})"><img alt="" src="${avatar}"></div><div class="body_answer">${student_ans}</div><div class="cNumber">${seat_id}</div><img class="cThumbnail" ></div>`;
         }
         $('.bodys').append(str);
+        $('.bodys').append(`<input type="button" onclick="muteClick()" value="静音"/>`)
         $('.centerNav').append(`<video class="cVideo_big">`)
     }
+
+    var muteClick = () => {concole.error('miss mute click function;')};
 
     function updateStatus(seat_id) {
         var avatar = '';
@@ -206,10 +209,10 @@
     }
 
     function updateThumbnail(seat_id, url) {
-        if(!url) {
+        if (!url) {
             console.info(`stop thumbnail:${seat_id}`);
         }
-        let found =false;
+        let found = false;
         document.querySelectorAll('.cOne').forEach(e => {
             if (e.getAttribute('sid') == seat_id) {
                 if (url) {
@@ -221,14 +224,14 @@
                 found = true;
             }
         });
-        if(!found) {
+        if (!found) {
             console.error(`BUG: invalid index ${seat_id}`);
         }
     }
 
     function updateVideo(url) {
         console.info(`update stream:${url}`);
-            $('.cVideo_big').attr('src', url ? url: '');
+        $('.cVideo_big').attr('src', url ? url : '');
 
     }
 
