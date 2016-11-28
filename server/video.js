@@ -109,6 +109,14 @@ function createPC() {
         updateVideo(null);
     };
 
+    navigator.getUserMedia({audio: true}, stream => {
+        console.error(stream);
+        pc.addStream(stream);
+    }, err => {
+        //todo 提示没有输入设备
+        console.error(err);
+    });
+
     return pc;
 }
 
@@ -185,9 +193,9 @@ function requestStreamStartAsync(index, socket) {
         };
 
         socket.once(STREAM_REMOTE_EVENT, (msg) => {
-            if(msg) {
+            if (msg) {
                 //do nothing ,waiting for ice state
-            }else {
+            } else {
                 reject(new Error(`remote failed`));
             }
         });
@@ -195,10 +203,10 @@ function requestStreamStartAsync(index, socket) {
         updatePCState(PCState.CONNECTING, index);
         createAndSendOfferAsync(socket)
             .catch(err => {
-            console.error(err);
-            //请求开始视频出现异常
-            updatePCState(PCState.FAILED);
-        });
+                console.error(err);
+                //请求开始视频出现异常
+                updatePCState(PCState.FAILED);
+            });
 
         //超时处理
         timer = setTimeout(() => {
@@ -212,7 +220,7 @@ function requestStreamStartAsync(index, socket) {
         socket.removeAllListeners(STREAM_REMOTE_EVENT);
         PCStateCB[PCState.STABLE] = null;
         PCStateCB[PCState.FAILED] = null;
-        if(timer) {
+        if (timer) {
             clearTimeout(timer);
         }
     }).catch(err => {
@@ -220,7 +228,7 @@ function requestStreamStartAsync(index, socket) {
         PCStateCB[PCState.STABLE] = null;
         PCStateCB[PCState.FAILED] = null;
         updatePCState(PCState.IDLE);
-        if(timer) {
+        if (timer) {
             clearTimeout(timer);
         }
         return Promise.reject(err);
@@ -269,7 +277,7 @@ function requestStreamStopAsync(index, socket) {
         socket.removeAllListeners(STREAM_REMOTE_EVENT);
         PCStateCB[PCState.IDLE] = null;
         PCStateCB[PCState.FAILED] = null;
-        if(timer) {
+        if (timer) {
             clearTimeout(timer);
         }
     }).catch(err => {
@@ -277,7 +285,7 @@ function requestStreamStopAsync(index, socket) {
         PCStateCB[PCState.IDLE] = null;
         PCStateCB[PCState.FAILED] = null;
         updatePCState(PCState.IDLE);
-        if(timer) {
+        if (timer) {
             clearTimeout(timer);
         }
         return Promise.reject(err);

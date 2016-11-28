@@ -137,6 +137,12 @@ function waitOfferAsync(socket) {
                 () => {
                     console.log('pc on set remote desc success');
                 });
+
+            pc.onaddstream = e => {
+                //播放对端音频
+                document.getElementById('audio').setAttribute('src', URL.createObjectURL(e.stream));
+            };
+
             //获取pc
             resolve(pc);
         });
