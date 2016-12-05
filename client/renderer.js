@@ -70,6 +70,8 @@ ioSocket.on('disconnect', () => {
 
 ioSocket.on('start course', pushCourse);
 
+ioSocket.on('course-stop', killChild);
+
 let currentStatus = classState.PENDING;
 
 function updateStatus(state, data) {
@@ -134,6 +136,20 @@ function pushCourse(courseInfo) {
     }
 }
 
+let child;
+
+function killChild(event, data) {
+    if(child) {
+        //关闭child监听
+        child.removeAllListeners();
+        ioSocket.emit('course-done');
+        child.kill();
+        updateStatus(classState.DONE, answers);
+        answers = [];
+        child = null;
+    }
+}
+
 //return if success;
 function executeCourse(courseName) {
     let exe = config.get(`courses.${courseName}`);
@@ -146,15 +162,16 @@ function executeCourse(courseName) {
     }
 
     try {
-        // const child = cp.spawn(exe);
-        const path = require('path');
-        const child = cp.spawn('electron', [path.join(__dirname, '../course/course.js'), courseName]);
+        child = cp.spawn(exe);
+        // const path = require('path');
+        // const child = cp.spawn('electron', [path.join(__dirname, '../course/course.js'), courseName]);
 
         child.on('exit', (m) => {
             console.log(`course ended: ${m}`);
             ioSocket.emit('course-exit', m);
             currentCourse = null;
             video.stop(ioSocket);
+            child = null;
         });
         child.on('error', (e) => {
             console.error(e);
@@ -162,17 +179,13 @@ function executeCourse(courseName) {
             video.stop(ioSocket);
             ioSocket.emit('course-exit', -1);
             updateStatus(classState.FAILED, e.message);
+            child = null;
         });
 
         //todo name
         video.start(ioSocket, 'VI Classroom Course Demo', setting.index);
 
-        ipcRenderer.once('course-done', (event, data) => {
-            ioSocket.emit('course-done');
-            child.kill();
-            updateStatus(classState.DONE, answers);
-            answers = [];
-        });
+        ipcRenderer.once('course-done', killChild);
 
         return true;
     } catch (error) {
