@@ -83,6 +83,9 @@ if (process.platform == 'win32') {
                 label: '配置', type: 'normal', click: showConfigWindow
             },
             {
+                label: '结束当前课程', type: 'normal', click: courseDone
+            },
+            {
                 label: '退出', type: 'normal', click: ()=> {
                 app.exit(0)
             }
@@ -111,7 +114,8 @@ ipcMain.on('config-save', (event, arg) => {
         index: arg.index,
         server: arg.server,
         server_port: 9101,
-        port: 9100,
+        port: 9200
+        // port: 9100 //旧版server
     };
     if (configwindow) {
         configwindow.close();
@@ -127,6 +131,10 @@ function showConfigWindow() {
 function logout() {
     mainWindow.loadURL(`file://${__dirname}/login.html`);
     mainWindow.show();
+}
+
+function courseDone() {
+    mainWindow.send('course-done');
 }
 
 ipcMain.on('dialog-show', (event, arg) => {

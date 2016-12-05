@@ -167,6 +167,13 @@ function executeCourse(courseName) {
         //todo name
         video.start(ioSocket, 'VI Classroom Course Demo', setting.index);
 
+        ipcRenderer.once('course-done', (event, data) => {
+            ioSocket.emit('course-done');
+            child.kill();
+            updateStatus(classState.DONE, answers);
+            answers = [];
+        });
+
         return true;
     } catch (error) {
         console.error(error);
@@ -182,11 +189,11 @@ let answers = [];
 function handleServerMessage(message) {
     if (message.event) {
         //事件
-        if (message.event === 'done') {
-            updateStatus(classState.DONE, answers);
-            ioSocket.emit('course-done', {answers: answers});
-            answers = [];
-        }
+        // if (message.event === 'done') {
+        //     updateStatus(classState.DONE, answers);
+        //     ioSocket.emit('course-done', {answers: answers});
+        //     answers = [];
+        // }
     } else if (message.answer) {
         //答题
         answers.push(message.answer);
