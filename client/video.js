@@ -30,7 +30,7 @@ function getWindowSourceAsync() {
     return new Promise((resolve, reject) => {
         desktopCapturer.getSources({
             types: ['window'],
-            thumbnailSize: {width: 150, height: 100}
+            thumbnailSize: {width: sourceInfo.thumbnailSize.width, height: sourceInfo.thumbnailSize.height}
         }, (error, sources) => {
             if (error) {
                 reject(error);
@@ -93,10 +93,10 @@ function getStreamAsync() {
                     mandatory: {
                         chromeMediaSource: 'desktop',
                         sourceId: source.id,
-                        minWidth: 800,
-                        maxWidth: 800,
-                        minHeight: 600,
-                        maxHeight: 600
+                        minWidth: sourceInfo.videoSize.width,
+                        maxWidth: sourceInfo.videoSize.width,
+                        minHeight: sourceInfo.videoSize.height,
+                        maxHeight: sourceInfo.videoSize.height
                     }
                 }
             };
@@ -220,9 +220,9 @@ function removeSocketEvent(socket) {
 }
 
 //课程开始,推送缩略图并等待视频请求
-exports.start = (socket, name) => {
+exports.start = (socket, name, thumbnailSize, videoSize) => {
     //获取当前窗口source,开始截图推送流程,并监听流请求
-    sourceInfo = {name: name};
+    sourceInfo = {name: name, thumbnailSize: thumbnailSize, videoSize: videoSize};
     pushThumbnailLoop(socket);
 
     //进入播放视频流程,直到课程结束

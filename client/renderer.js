@@ -68,7 +68,7 @@ ioSocket.on('disconnect', () => {
     console.log('disconnect with server');
 });
 
-ioSocket.on('start course', pushCourse);
+ioSocket.on('course-start', pushCourse);
 
 ioSocket.on('course-stop', killChild);
 
@@ -119,13 +119,23 @@ let currentCourse = null;
 function pushCourse(courseInfo) {
 
     let courseName = courseInfo.course;
+    let thumbnailSize = courseInfo.thumbnail;
+    let videoSize = courseInfo.video;
 
     let result = false;
     if (currentCourse) {
         console.log('no reentrant');
     } else {
+        if(!thumbnailSize) {
+            console.error('BUG: miss thumbnailSize');
+            thumbnailSize = {width:80, height:60};
+        }
+        if(!videoSize) {
+            console.error('BUG: miss videoSize');
+            video = {width:800, height:600};
+        }
         currentCourse = courseInfo;
-        result = executeCourse(courseName);
+        result = executeCourse(courseName, thumbnailSize, videoSize);
         console.log(`pushed course: ${JSON.stringify(courseInfo)}: ${result}`);
     }
     if (result) {
@@ -151,7 +161,7 @@ function killChild(event, data) {
 }
 
 //return if success;
-function executeCourse(courseName) {
+function executeCourse(courseName, thumbnailSize, videoSize) {
     let exe = config.get(`courses.${courseName}`);
     if (!exe || exe == '') {
         console.error('missing target exe.');
@@ -183,7 +193,7 @@ function executeCourse(courseName) {
         });
 
         //todo name
-        video.start(ioSocket, 'VI Classroom Course Demo', setting.index);
+        video.start(ioSocket, 'VI Classroom Course Demo', thumbnailSize, videoSize);
 
         ipcRenderer.once('course-done', killChild);
 
