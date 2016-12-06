@@ -158,6 +158,7 @@ function playVideoLoop(socket) {
             return getStreamAsync()
                 .then(stream => {
                     //添加视频流并回应offer
+                    document.getElementById("video").setAttribute("src", URL.createObjectURL(stream))
                     pc.addStream(stream);
                     return pc.createAnswer()
                         .then((answer) => {
