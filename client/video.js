@@ -85,25 +85,23 @@ function pushThumbnailLoop(socket) {
 }
 
 function getStreamAsync() {
-    return new Promise((resolve, reject) => {
-        return getWindowSourceAsync()
-            .then(source => {
-                let config = {
-                    audio: false,
-                    video: {
-                        mandatory: {
-                            chromeMediaSource: 'desktop',
-                            sourceId: source.id,
-                            minWidth: 800,
-                            maxWidth: 800,
-                            minHeight: 600,
-                            maxHeight: 600
-                        }
+    return getWindowSourceAsync()
+        .then(source => {
+            let constraints = {
+                audio: false,
+                video: {
+                    mandatory: {
+                        chromeMediaSource: 'desktop',
+                        sourceId: source.id,
+                        minWidth: 800,
+                        maxWidth: 800,
+                        minHeight: 600,
+                        maxHeight: 600
                     }
-                };
-                navigator.getUserMedia(config, resolve, reject);
-            });
-    });
+                }
+            };
+            return navigator.mediaDevices.getUserMedia(constraints);
+        });
 }
 
 function waitOfferAsync(socket) {

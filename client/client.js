@@ -113,8 +113,8 @@ ipcMain.on('config-save', (event, arg) => {
     config.store = {
         index: arg.index,
         server: arg.server,
-        server_port: 9101,
-        port: 9200
+        server_port: 9200,
+        port: 9100
         // port: 9100 //旧版server
     };
     if (configwindow) {
