@@ -126,13 +126,13 @@ function pushCourse(courseInfo) {
     if (currentCourse) {
         console.log('no reentrant');
     } else {
-        if(!thumbnailSize) {
+        if (!thumbnailSize) {
             console.error('BUG: miss thumbnailSize');
-            thumbnailSize = {width:80, height:60};
+            thumbnailSize = {width: 80, height: 60};
         }
-        if(!videoSize) {
+        if (!videoSize) {
             console.error('BUG: miss videoSize');
-            video = {width:800, height:600};
+            video = {width: 800, height: 600};
         }
         currentCourse = courseInfo;
         result = executeCourse(courseName, thumbnailSize, videoSize);
@@ -149,7 +149,7 @@ function pushCourse(courseInfo) {
 let child;
 
 function killChild(event, data) {
-    if(child) {
+    if (child) {
         //关闭child监听
         child.removeAllListeners();
         ioSocket.emit('course-done');
@@ -167,44 +167,41 @@ function executeCourse(courseName, thumbnailSize, videoSize) {
         console.error('missing target exe.');
         updateStatus(classState.FAILED, '请正确配置课程文件位置');
         currentCourse = null;
-        video.stop(ioSocket);
         return false;
     }
 
     try {
         child = cp.spawn(exe);
         // const path = require('path');
-        // const child = cp.spawn('electron', [path.join(__dirname, '../course/course.js'), courseName]);
-
-        child.on('exit', (m) => {
-            console.log(`course ended: ${m}`);
-            ioSocket.emit('course-exit', m);
-            currentCourse = null;
-            video.stop(ioSocket);
-            child = null;
-        });
-        child.on('error', (e) => {
-            console.error(e);
-            currentCourse = null;
-            video.stop(ioSocket);
-            ioSocket.emit('course-exit', -1);
-            updateStatus(classState.FAILED, e.message);
-            child = null;
-        });
-
-        //todo name
-        video.start(ioSocket, 'VI Classroom Course Demo', thumbnailSize, videoSize);
-
-        ipcRenderer.once('course-done', killChild);
-
-        return true;
+        // child = cp.spawn('electron', [path.join(__dirname, '../course/course.js'), courseName]);
     } catch (error) {
         console.error(error);
+        updateStatus(classState.FAILED, '课程文件执行失败,请重新配置');
         currentCourse = null;
-        video.stop(ioSocket);
         return false;
     }
+    child.on('exit', (m) => {
+        console.log(`course ended: ${m}`);
+        ioSocket.emit('course-exit', m);
+        currentCourse = null;
+        video.stop(ioSocket);
+        child = null;
+    });
+    child.on('error', (e) => {
+        console.error(e);
+        currentCourse = null;
+        video.stop(ioSocket);
+        ioSocket.emit('course-exit', -1);
+        updateStatus(classState.FAILED, e.message);
+        child = null;
+    });
 
+    //todo name
+    video.start(ioSocket, 'VI Classroom Course Demo', thumbnailSize, videoSize);
+
+    ipcRenderer.once('course-done', killChild);
+
+    return true;
 }
 
 let answers = [];
