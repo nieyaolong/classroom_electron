@@ -118,7 +118,7 @@ let currentCourse = null;
 
 function pushCourse(courseInfo) {
 
-    let courseName = courseInfo.course;
+    let course = courseInfo.course;
     let thumbnailSize = courseInfo.thumbnail;
     let videoSize = courseInfo.video;
 
@@ -134,8 +134,8 @@ function pushCourse(courseInfo) {
             console.error('BUG: miss videoSize');
             video = {width: 800, height: 600};
         }
-        currentCourse = courseInfo;
-        result = executeCourse(courseName, thumbnailSize, videoSize);
+        currentCourse = course;
+        result = executeCourse(course, thumbnailSize, videoSize);
         console.log(`pushed course: ${JSON.stringify(courseInfo)}: ${result}`);
     }
     if (result) {
@@ -161,45 +161,48 @@ function killChild(event, data) {
 }
 
 //return if success;
-function executeCourse(courseName, thumbnailSize, videoSize) {
-    let exe = config.get(`courses.${courseName}`);
-    if (!exe || exe == '') {
-        console.error('missing target exe.');
-        updateStatus(classState.FAILED, '请正确配置课程文件位置');
-        currentCourse = null;
-        return false;
-    }
-
+function executeCourse(course, thumbnailSize, videoSize) {
     try {
-        child = cp.spawn(exe);
+        let courseConfig = require(path.resolve(config.get(`courses.${course.root}`, 'course.json')));
+        let courseInfo = courseConfig[course.name];
+
+        if (!courseInfo.exe || courseInfo.exe == '') {
+            console.error('missing target exe.');
+            updateStatus(classState.FAILED, '请正确配置课程文件位置');
+            currentCourse = null;
+            return false;
+        }
+
+        child = cp.spawn(courseInfo.exe, courseInfo.parameters);
         // const path = require('path');
         // child = cp.spawn('electron', [path.join(__dirname, '../course/course.js'), courseName]);
+        child.on('exit', (m) => {
+            console.log(`course ended: ${m}`);
+            ioSocket.emit('course-exit', m);
+            currentCourse = null;
+            video.stop(ioSocket);
+            child = null;
+        });
+        child.on('error', (e) => {
+            console.error(e);
+            currentCourse = null;
+            video.stop(ioSocket);
+            ioSocket.emit('course-exit', -1);
+            updateStatus(classState.FAILED, e.message);
+            child = null;
+        });
+
+        //todo name
+        video.start(ioSocket, course.title, thumbnailSize, videoSize);
+
+        ipcRenderer.once('course-done', killChild);
     } catch (error) {
         console.error(error);
         updateStatus(classState.FAILED, '课程文件执行失败,请重新配置');
         currentCourse = null;
         return false;
     }
-    child.on('exit', (m) => {
-        console.log(`course ended: ${m}`);
-        ioSocket.emit('course-exit', m);
-        currentCourse = null;
-        video.stop(ioSocket);
-        child = null;
-    });
-    child.on('error', (e) => {
-        console.error(e);
-        currentCourse = null;
-        video.stop(ioSocket);
-        ioSocket.emit('course-exit', -1);
-        updateStatus(classState.FAILED, e.message);
-        child = null;
-    });
 
-    //todo name
-    video.start(ioSocket, 'VI Classroom Course Demo', thumbnailSize, videoSize);
-
-    ipcRenderer.once('course-done', killChild);
 
     return true;
 }

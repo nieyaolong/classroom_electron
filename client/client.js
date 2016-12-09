@@ -72,34 +72,34 @@ app.on('activate', function () {
 
 let tray = null;
 let configwindow = null;
-if (process.platform == 'win32') {
-    app.on('ready', () => {
-        tray = new Tray(path.join(__dirname, '/img/classroom.ico'));
-        const contextMenu = Menu.buildFromTemplate([
-            {
-                label: '登出', type: 'normal', click: logout
-            },
-            {
-                label: '配置', type: 'normal', click: showConfigWindow
-            },
-            {
-                label: '结束当前课程', type: 'normal', click: courseDone
-            },
-            {
-                label: '退出', type: 'normal', click: ()=> {
-                app.exit(0)
-            }
-            }
-        ]);
-        tray.setToolTip('威爱教育虚拟现实教学云平台');
-        tray.setContextMenu(contextMenu);
-
-        //show config window if needed
-        if (!config.get('index')) {
-            showConfigWindow();
+app.on('ready', () => {
+    tray = new Tray(path.join(__dirname, process.platform == 'win32' ? '/img/classroom.ico' : 'img/mac.png'));
+    const contextMenu = Menu.buildFromTemplate([
+        {
+            label: '登出', type: 'normal', click: logout
+        },
+        {
+            label: '配置', type: 'normal', click: showConfigWindow
+        },
+        {
+            label: '结束当前课程', type: 'normal', click: courseDone
+        },
+        {
+            label: '退出', type: 'normal', click: () => {
+            app.exit(0)
         }
-    });
-}
+        }
+    ]);
+    tray.setToolTip('威爱教育虚拟现实教学云平台');
+    tray.setContextMenu(contextMenu);
+
+    //show config window if needed
+    console.error('current config: ', config.store);
+    if (!config.get('index')) {
+        showConfigWindow();
+    }
+});
+
 
 ipcMain.on('login', (event, arg) => {
     tray.setToolTip(`威爱教育虚拟现实教学云平台\n学号：${arg.edu}\n姓名：${arg.name}`);
@@ -109,13 +109,12 @@ ipcMain.on('login', (event, arg) => {
 ipcMain.on('logout', logout);
 
 ipcMain.on('config-save', (event, arg) => {
-    console.log(arg);
     config.store = {
         index: arg.index,
         server: arg.server,
-        server_port: 9200,
-        port: 9100
-        // port: 9100 //旧版server
+        server_port: arg.port,
+        course_path: arg.course,
+        port: 9100,
     };
     if (configwindow) {
         configwindow.close();
@@ -126,6 +125,8 @@ function showConfigWindow() {
     configwindow = new BrowserWindow({width: 400, height: 500, resize: false});
     configwindow.loadURL(`file://${__dirname}/config.html`);
     configwindow.setMenu(null);
+
+    // configwindow.webContents.openDevTools()
 }
 
 function logout() {
@@ -137,14 +138,13 @@ function courseDone() {
     mainWindow.send('course-done');
 }
 
-ipcMain.on('dialog-show', (event, arg) => {
-    let courseConfig = `courses.${arg.name}`;
-    Dialog.showOpenDialog({properties: ['openFile'],
-        filters:[{name: '课件执行文件', extensions: ['exe']}],
+ipcMain.on('dialog-show', (event) => {
+    let courseConfig = `course_path`;
+    Dialog.showOpenDialog({
+        title: '选择课程根目录',
+        properties: ['openDirectory', 'createDirectory'],
         defaultPath: config.get(courseConfig)
-    }, (fileName)=> {
-        if (fileName && fileName.length > 0) {
-            config.set(courseConfig, fileName[0]);
-        }
+    }, (path) => {
+        event.returnValue = path && path[0] ? path[0] : null;
     });
 });

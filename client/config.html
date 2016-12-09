@@ -16,20 +16,12 @@
     <p>老师电脑的IP地址：
         <input type="text" name="server" required="true"/>
     </p>
-    <p>英语课程文件：
-        <input type="button" onclick="show_dialog('english');" value="选择文件"/>
+    <p style="display: none">老师电脑的服务端口号：
+        <input type="text" name="port" required="true" value="9200"/>
     </p>
-    <p>皮肤课程文件：
-        <input type="button" onclick="show_dialog('skin');" value="选择文件"/>
-    </p>
-    <p>遵义课程文件：
-        <input type="button" onclick="show_dialog('zunyi');" value="选择文件"/>
-    </p>
-    <p>指挥家课程文件：
-        <input type="button" onclick="show_dialog('cantor');" value="选择文件"/>
-    </p>
-    <p>发动机课程文件：
-        <input type="button" onclick="show_dialog('engine');" value="选择文件"/>
+    <p>课程根目录：
+        <input type="text" name="course" required="true" disabled="disabled"/>
+        <input type="button" onclick="show_dialog();" value="选择目录"/>
     </p>
 
     <input type="submit" value="保存"/>

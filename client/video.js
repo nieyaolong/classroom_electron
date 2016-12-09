@@ -44,9 +44,18 @@ function getWindowSourceAsync() {
                 if (sourceInfo.id && source.id === sourceInfo.id) {
                     s = source;
                     break;
-                } else if (source.name.match(new RegExp(`${sourceInfo.name}.*`))) {
-                    s = source;
-                    break;
+                } else {
+                    let isMatch = false;
+                    for(let name of sourceInfo.name) {
+                        if (source.name.match(new RegExp(`${sourceInfo.name}.*`))) {
+                            isMatch = true;
+                            break;
+                        }
+                    }
+                    if(isMatch) {
+                        s = source;
+                        break;
+                    }
                 }
             }
             if (s) {
