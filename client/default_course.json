@@ -1,1 +1,1 @@
-{"courses":[{"id":"windows_test","type":"system","exe":""},{"id":"windows_test","type":"system","exe":"/Applications/Calculator.app"}]}
+{"courses":{"windows_test":{"type":"system","exe":""},"mac_test":{"type":"system","exe":"/Applications/Chess.app/Contents/MacOS/Chess"}}}

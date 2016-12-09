@@ -7,6 +7,7 @@ const ipcRenderer = require('electron').ipcRenderer;
 const params = require('url').parse(window.location.href, true).query;
 const cp = require('child_process');
 const path = require('path');
+const fs = require('fs');
 const Config = require('electron-config');
 const config = new Config();
 
@@ -40,7 +41,11 @@ if (!config.get('index')) {
 } else if (!config.get('server')) {
     notic('请正确配置教师端ip地址');
     ipcRenderer.send('logout');
+} else if (!config.get('course_path') || !fs.existsSync(path.join(config.get('course_path'), 'course.json'))) {
+    notic('请正确配置课程路径');
+    ipcRenderer.send('logout');
 } else {
+    notic('配置文件认证通过,开始登陆');
     ipcRenderer.send('login', {edu: params['edu_id'], name: params['user_name']});
 }
 
@@ -88,7 +93,7 @@ function updateStatus(state, data) {
             message = `请戴上头盔开始课程`;
             break;
         case classState.DONE:
-            message = `课程结束, 答题结果: ${data}`;
+            message = `课程结束`;
             break;
         case classState.FAILED:
             message = `出错: ${data}`;
@@ -156,16 +161,19 @@ function killChild(event, data) {
         child.kill();
         updateStatus(classState.DONE, answers);
         answers = [];
+        video.stop(ioSocket);
         child = null;
+        currentCourse = null;
     }
 }
 
 //return if success;
 function executeCourse(course, thumbnailSize, videoSize) {
+    console.error(course);
     try {
-        let courseConfig = require(path.resolve(config.get(`courses.${course.root}`, 'course.json')));
-        let courseInfo = courseConfig[course.name];
-
+        let courseConfig = require(path.join(config.get(`course_path`), 'course.json'));
+        let courseInfo = courseConfig['courses'][course.name];
+        console.error(courseInfo);
         if (!courseInfo.exe || courseInfo.exe == '') {
             console.error('missing target exe.');
             updateStatus(classState.FAILED, '请正确配置课程文件位置');
@@ -173,9 +181,7 @@ function executeCourse(course, thumbnailSize, videoSize) {
             return false;
         }
 
-        child = cp.spawn(courseInfo.exe, courseInfo.parameters);
-        // const path = require('path');
-        // child = cp.spawn('electron', [path.join(__dirname, '../course/course.js'), courseName]);
+        child = cp.spawn(courseInfo.exe, courseInfo.parameter);
         child.on('exit', (m) => {
             console.log(`course ended: ${m}`);
             ioSocket.emit('course-exit', m);

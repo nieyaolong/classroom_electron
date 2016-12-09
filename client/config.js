@@ -30,7 +30,7 @@ save_config = () => {
         if (!fs.existsSync(courseConfigFile)) {
             //创建配置文件
             //todo course.json config
-            let data = fs.realpathSync(path.join(__dirname, './default_course.json'));
+            let data = fs.readFileSync(path.join(__dirname, './default_course.json'));
             fs.writeFileSync(courseConfigFile, data);
             alert('已生成默认课程配置文件');
         }

@@ -103,7 +103,7 @@ app.on('ready', () => {
 
 ipcMain.on('login', (event, arg) => {
     tray.setToolTip(`威爱教育虚拟现实教学云平台\n学号：${arg.edu}\n姓名：${arg.name}`);
-    mainWindow.hide();
+    // mainWindow.hide();
 });
 
 ipcMain.on('logout', logout);

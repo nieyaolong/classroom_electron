@@ -45,15 +45,12 @@ function getWindowSourceAsync() {
                     s = source;
                     break;
                 } else {
-                    let isMatch = false;
                     for(let name of sourceInfo.name) {
-                        if (source.name.match(new RegExp(`${sourceInfo.name}.*`))) {
-                            isMatch = true;
-                            break;
+                        if (source.name.match(new RegExp(`.*${name}.*`))) {
+                            s = source;
                         }
                     }
-                    if(isMatch) {
-                        s = source;
+                    if(s) {
                         break;
                     }
                 }
@@ -62,6 +59,7 @@ function getWindowSourceAsync() {
                 sourceInfo.id = s.id;
                 resolve(s);
             } else {
+                console.error('sources: %o, names: %o', sources, sourceInfo);
                 reject(new Error("get source failed"));
             }
         });
