@@ -96,7 +96,7 @@ function updateStatus(state, data) {
             message = `课程结束`;
             break;
         case classState.FAILED:
-            message = `出错: ${data}`;
+            message = `课程执行失败，请检查课程文件配置并重新登录`;
             break;
         default:
             message = `未知状态:state`;
@@ -176,7 +176,7 @@ function executeCourse(course, thumbnailSize, videoSize) {
         console.error(courseInfo);
         if (!courseInfo.exe || courseInfo.exe == '') {
             console.error('missing target exe.');
-            updateStatus(classState.FAILED, '请正确配置课程文件位置');
+            updateStatus(classState.FAILED);
             currentCourse = null;
             return false;
         }
@@ -184,7 +184,11 @@ function executeCourse(course, thumbnailSize, videoSize) {
         child = cp.spawn(courseInfo.exe, courseInfo.parameter);
         child.on('exit', (m) => {
             console.log(`course ended: ${m}`);
-            ioSocket.emit('course-exit', m);
+            if(m) {
+                ioSocket.emit('course-failed');
+            } else {
+                ioSocket.emit('course-exit');
+            }
             currentCourse = null;
             video.stop(ioSocket);
             child = null;
@@ -193,8 +197,8 @@ function executeCourse(course, thumbnailSize, videoSize) {
             console.error(e);
             currentCourse = null;
             video.stop(ioSocket);
-            ioSocket.emit('course-exit', -1);
-            updateStatus(classState.FAILED, e.message);
+            ioSocket.emit('course-failed', e.code);
+            updateStatus(classState.FAILED);
             child = null;
         });
 
@@ -204,7 +208,7 @@ function executeCourse(course, thumbnailSize, videoSize) {
         ipcRenderer.once('course-done', killChild);
     } catch (error) {
         console.error(error);
-        updateStatus(classState.FAILED, '课程文件执行失败,请重新配置');
+        updateStatus(classState.FAILED);
         currentCourse = null;
         return false;
     }
