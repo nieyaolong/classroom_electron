@@ -1,1 +1,1 @@
-{"courses":{"windows_test":{"type":"system","exe":""},"mac_test":{"type":"system","exe":"/Applications/Chess.app/Contents/MacOS/Chess"}}}
+{"courses":{"windows_test":{"type":"system","exe":"C:\\Windows\\System32\\mspaint.exe"},"mac_test":{"type":"system","exe":"/Applications/Chess.app/Contents/MacOS/Chess"}}}

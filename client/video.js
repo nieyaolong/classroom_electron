@@ -59,7 +59,7 @@ function getWindowSourceAsync() {
                 sourceInfo.id = s.id;
                 resolve(s);
             } else {
-                console.error('sources: %o, names: %o', sources, sourceInfo);
+                // console.error('sources: %o, names: %o', sources, sourceInfo);
                 reject(new Error("get source failed"));
             }
         });
