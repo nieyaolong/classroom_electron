@@ -148,3 +148,5 @@ ipcMain.on('dialog-show', (event) => {
         event.returnValue = path && path[0] ? path[0] : null;
     });
 });
+
+ipcMain.on('logout', logout);

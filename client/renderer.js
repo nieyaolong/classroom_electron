@@ -1,6 +1,7 @@
 "use strict";
 
 let video = require('./video.js');
+let broadcast = require('./broadcast.js');
 
 const ipcRenderer = require('electron').ipcRenderer;
 
@@ -14,22 +15,6 @@ const config = new Config();
 console.log(`config loaded:${config.path}`);
 
 const os = require('os');
-// function getIndexFromIPAddress() {
-//     let ipAddress = null;
-//     let loInfo = os.networkInterfaces();
-//     for(let prop in loInfo) {
-//         if (loInfo.hasOwnProperty(prop)) {
-//             loInfo[prop].forEach(lo => {
-//                 if (lo.family == 'IPv4' && lo.internal == false) {
-//                     ipAddress = lo.address;
-//                 }
-//             });
-//         }
-//     }
-//     let result = ipAddress ? Number(ipAddress.split('.')[3]) : 0;
-//     notic(`自动获取座位编号：${result ? result : '失败，请修改配置文件'}`);
-//     return result;
-// }
 
 let classState = {
     PENDING: 0, CONNECTED: 1, PROCESSING: 2, DONE: 3, FAILED: 4
@@ -68,6 +53,19 @@ ioSocket.on('connect', () => {
     ioSocket.emit('login', {index: setting.index, user: setting.user, edu: setting.id});
     updateStatus(classState.CONNECTED);
 });
+
+ioSocket.on('login_result', (result) => {
+    console.log(`login_result :${result}`);
+    if(result) {
+        broadcast.start(ioSocket);
+        updateStatus(classState.CONNECTED);
+    } else {
+        //登录失败
+        notic('登录失败');
+        ipcRenderer.send('logout');
+    }
+});
+
 
 ioSocket.on('disconnect', () => {
     console.log('disconnect with server');
