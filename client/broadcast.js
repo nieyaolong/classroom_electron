@@ -12,7 +12,6 @@ let pc;
 exports.start = (socket) => {
     socket.removeAllListeners(BC_DESC_EVENT);
     socket.once(BC_DESC_EVENT, (desc) => {
-        console.error('receive broadcast offer');
         //recv offer, create pc
         pc = new webkitRTCPeerConnection(null);
 
@@ -24,13 +23,13 @@ exports.start = (socket) => {
         };
 
         pc.oniceconnectionstatechange = () => {
-            let state = pc.iceConnectionState;
-            console.log(' ICE state: ' + state);
+            let state = pc ? pc.iceConnectionState : null;
+            console.log('BC ICE state: ' + state);
         };
 
-        pc.setRemoteDescription(desc).then(
-            () => {
-                console.log('pc on set remote desc success');
+        pc.setRemoteDescription(desc)
+            .catch(err => {
+                console.error(err);
             });
 
         pc.onaddstream = e => {
@@ -43,7 +42,7 @@ exports.start = (socket) => {
                 return pc.setLocalDescription(answer)
                     .then(() => {
                         socket.emit(BC_DESC_EVENT, answer);
-                        console.error('send broadcast answer: %o', answer);
+                        // console.error('send broadcast answer: %o', answer);
                     });
             });
     });
