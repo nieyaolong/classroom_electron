@@ -69,6 +69,7 @@ ioSocket.on('login_result', (result) => {
 
 ioSocket.on('disconnect', () => {
     console.log('disconnect with server');
+    broadcast.stop(ioSocket);
 });
 
 ioSocket.on('course-start', pushCourse);
