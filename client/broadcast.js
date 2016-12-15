@@ -10,9 +10,8 @@ const BC_ICE_EVENT = "BC_ICE";
 let pc;
 
 exports.start = (socket) => {
-    socket.once(BC_DESC_EVENT, (desc) => {
+    socket.on(BC_DESC_EVENT, (desc) => {
         console.error('receive broadcast offer');
-        //只接收一次offer,其他丢弃
         //recv offer, create pc
         pc = new webkitRTCPeerConnection(null);
 
