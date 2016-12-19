@@ -51,7 +51,6 @@ console.log(`current config: ${JSON.stringify(setting)}`);
 ioSocket.on('connect', () => {
     console.log(`connected :${setting.server}`);
     ioSocket.emit('login', {index: setting.index, user: setting.user, edu: setting.id});
-    updateStatus(classState.CONNECTED);
 });
 
 ioSocket.on('login_result', (result) => {
@@ -69,7 +68,7 @@ ioSocket.on('login_result', (result) => {
 
 ioSocket.on('disconnect', () => {
     console.log('disconnect with server');
-    broadcast.stop(ioSocket);
+    broadcast.stop();
 });
 
 ioSocket.on('course-start', pushCourse);

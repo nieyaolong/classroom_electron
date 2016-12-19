@@ -23,8 +23,9 @@ exports.start = (socket) => {
         };
 
         pc.oniceconnectionstatechange = () => {
-            let state = pc ? pc.iceConnectionState : null;
-            console.log('BC ICE state: ' + state);
+            if(pc) {
+                console.log('BC ICE state: ' + pc.iceConnectionState);
+            }
         };
 
         pc.setRemoteDescription(desc)
@@ -48,11 +49,10 @@ exports.start = (socket) => {
     });
 };
 
-exports.stop = (socket) => {
+exports.stop = () => {
     if(pc) {
         pc.close();
         document.getElementById('bc_audio').setAttribute('src', null);
         pc = null;
     }
-    socket.removeAllListeners(BC_DESC_EVENT);
 };
