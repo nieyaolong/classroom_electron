@@ -155,7 +155,7 @@ function killChild(event, data) {
     if (child) {
         //关闭child监听
         child.removeAllListeners();
-        ioSocket.emit('course-done');
+        ioSocket.emit('course-done', {answers: answers});
         child.kill();
         updateStatus(classState.DONE, answers);
         answers = [];
