@@ -155,7 +155,7 @@ function killChild(event, data) {
     if (child) {
         //关闭child监听
         child.removeAllListeners();
-        ioSocket.emit('course-done', {answers: answers});
+        ioSocket.emit('course-done');
         child.kill();
         updateStatus(classState.DONE, answers);
         answers = [];
@@ -227,7 +227,8 @@ function handleServerMessage(message) {
         // }
     } else if (message.answer) {
         //答题
-        answers.push(message.answer);
+        // answers.push(message.answer);
+        ioSocket.emit('answer-commit', message.answer);
     }
 }
 
