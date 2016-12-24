@@ -179,6 +179,10 @@ function executeCourse(course, thumbnailSize, videoSize) {
             return false;
         }
 
+        if(courseInfo.type == 'build-in') {
+            courseInfo.exe = path.join(config.get('course_path'), courseInfo.exe);
+        }
+
         child = cp.spawn(courseInfo.exe, courseInfo.parameter);
         child.on('exit', (m) => {
             console.log(`course ended: ${m}`);
