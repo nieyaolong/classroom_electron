@@ -1,0 +1,24 @@
+{
+  "courses": {
+    "SprayCraft": {
+      "type": "build-in",
+      "exe": "spray\\SprayCraft.exe"
+    },
+    "SkinScience": {
+      "type": "build-in",
+      "exe": "SkinScience\\SkinScience.exe"
+    },
+    "cambridge": {
+      "type": "build-in",
+      "exe": "English\\cambridge_short.exe"
+    },
+    "WeldingCraft": {
+      "type": "build-in",
+      "exe": "welding\\Weldingcraft_CO2_HTC.exe"
+    },
+    "Zunyi": {
+      "type": "build-in",
+      "exe": "hongsezunyi\\ZunYi.exe"
+    }
+  }
+}

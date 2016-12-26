@@ -16,6 +16,8 @@ console.log(`config loaded:${config.path}`);
 
 const os = require('os');
 
+console.error(process.env)
+
 let classState = {
     PENDING: 0, CONNECTED: 1, PROCESSING: 2, DONE: 3, FAILED: 4
 };

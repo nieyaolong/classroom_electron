@@ -6,6 +6,8 @@ const ipcRenderer = require('electron').ipcRenderer;
 const Config = require('electron-config');
 const config = new Config();
 
+const isDev = process.env.NODE_ENV == 'development';
+
 let indexInput = document.getElementsByName('index')[0];
 let serverInput = document.getElementsByName('server')[0];
 let portInput = document.getElementsByName('port')[0];
@@ -30,7 +32,7 @@ save_config = () => {
         if (!fs.existsSync(courseConfigFile)) {
             //创建配置文件
             //todo course.json config
-            let data = fs.readFileSync(path.join(__dirname, './default_course.json'));
+            let data = fs.readFileSync(path.join(__dirname, isDev ? './default_course_dev.json' : './default_course_prod.json'));
             fs.writeFileSync(courseConfigFile, data);
             alert('已生成默认课程配置文件');
         }
