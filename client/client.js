@@ -150,3 +150,10 @@ ipcMain.on('dialog-show', (event) => {
 });
 
 ipcMain.on('logout', logout);
+
+ipcMain.on('notice', (event, message) => {
+    tray.displayBalloon({
+        title: '通知',
+        content: message,
+    });
+});

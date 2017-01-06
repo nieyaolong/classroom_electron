@@ -23,16 +23,16 @@ let classState = {
 };
 
 if (!config.get('index')) {
-    notic('请正确配置座位编号');
+    notice('请正确配置座位编号');
     ipcRenderer.send('logout');
 } else if (!config.get('server')) {
-    notic('请正确配置教师端ip地址');
+    notice('请正确配置教师端ip地址');
     ipcRenderer.send('logout');
 } else if (!config.get('course_path') || !fs.existsSync(path.join(config.get('course_path'), 'course.json'))) {
-    notic('请正确配置课程路径');
+    notice('请正确配置课程路径');
     ipcRenderer.send('logout');
 } else {
-    notic('配置文件认证通过,开始登陆');
+    notice('配置文件认证通过,开始登陆');
     ipcRenderer.send('login', {edu: params['edu_id'], name: params['user_name']});
 }
 
@@ -62,7 +62,7 @@ ioSocket.on('login_result', (result) => {
         updateStatus(classState.CONNECTED);
     } else {
         //登录失败
-        notic('登录失败');
+        notice('登录失败');
         ipcRenderer.send('logout');
     }
 });
@@ -105,16 +105,17 @@ function updateStatus(state, data) {
         //等待5秒钟链接
         setTimeout(() => {
             if (currentStatus == classState.PENDING) {
-                notic(message);
+                notice(message);
             }
         }, 5000);
     } else {
-        notic(message);
+        notice(message);
     }
 }
 
-function notic(message) {
-    new Notification(message, {icon: 'img/classroom.ico'})
+function notice(message) {
+    new Notification(message, {icon: 'img/classroom.ico'});
+    // ipcRenderer.send('notice', message);
 }
 
 updateStatus(classState.PENDING);
@@ -181,11 +182,14 @@ function executeCourse(course, thumbnailSize, videoSize) {
             return false;
         }
 
+        let exe;
         if(courseInfo.type == 'build-in') {
-            courseInfo.exe = path.join(config.get('course_path'), courseInfo.exe);
+            exe = path.join(config.get('course_path'), courseInfo.exe);
+        } else {
+            exe = courseInfo.exe;
         }
 
-        child = cp.spawn(courseInfo.exe, courseInfo.parameter);
+        child = cp.spawn(exe, courseInfo.parameter);
         child.on('exit', (m) => {
             console.log(`course ended: ${m}`);
             if(m) {
